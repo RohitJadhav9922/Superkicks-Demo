@@ -1,0 +1,471 @@
+{{ 'section-main-product.css' | asset_url | stylesheet_tag }}
+{{ 'component-accordion.css' | asset_url | stylesheet_tag }}
+{{ 'customer.css' | asset_url | stylesheet_tag }}
+
+<script src="{{ 'heat-product.js' | asset_url }}" defer></script>
+
+{% for variant in product.variants %}
+  {% if variant.metafields.product.raffle_id != blank%}
+    {% assign raffle_id = variant.metafields.product.raffle_id  %}
+    
+  {% endif %}
+{% endfor %}
+
+{% if customer %}
+  {% assign province = customer.default_address.province %}
+{% endif %}
+
+{%- assign cityArray = "Andhra Pradesh, Andaman and Nicobar Islands, Arunachal Pradesh, Assam, Bihar, Chandigarh, Chhattisgarh, Dadar and Nagar Haveli, Daman and Diu, Delhi, Lakshadweep, Puducherry, Goa, Gujarat, Haryana, Himachal Pradesh, Jammu and Kashmir, Jharkhand, Karnataka, Kerala, Madhya Pradesh, Maharashtra, Manipur, Meghalaya, Mizoram, Nagaland, Odishal, Punjab, Rajasthan, Sikkim, Tamil Nadu, Telangana, Tripura, Uttar Pradesh, Uttarakhand, West Bengal" | split: ", " -%}
+
+{% comment %}{% if raffle_id != blank %} {% endif %}{% endcomment %}
+<div class="heat-product__container">
+<div class="page-width">
+  {% render 'breadcrumbs' %}
+</div>
+<div class="page-width">
+  <div class="head-product__wrapper grid grid--2-col-desktop grid--1-col">
+    <div class="head-product_image__conatiner grid__item" data-flickity='{ "cellAlign": "left", "contain": true, "arrowShape": {"x0": 10, "x1": 45, "y1": 35, "x2": 50, "y2": 30, "x3": 20} }'>
+      {% for image in product.images %}
+        <div class="head-product_image">
+          {% render 'lazy-image' src: image | image_url%}
+        </div>
+      {% endfor %}
+    </div>
+    
+    <div class="heat-product_details_container grid__item">
+      <div class="heat-product_details_wrapper">
+        {%- if product.vendor != blank -%}
+          <p class="product__vendor">{{ product.vendor }}</p>
+        {% endif %}
+        <h2 class="product__title {{ block.settings.heading_size }}" {{ block.shopify_attributes }}>
+          {%- if product.title != blank -%}
+            {{ product.title | escape }}
+          {%- else -%}
+            {{ 'onboarding.product_title' | t }}
+          {%- endif -%}
+        </h2>
+        
+        <div class="no-js-hidden" id="price-{{ section.id }}" role="status" {{ block.shopify_attributes }}>
+          {%- render 'price', product: product, use_variant: true, show_badges: flase, price_class: 'price--large' -%}
+        </div>
+        
+        {%- unless product.has_only_default_variant -%}
+          <variant-radios
+            class="no-js-hidden"
+            data-section="{{ section.id }}"
+            data-url="{{ product.url }}"
+            data-update-url="true"
+            {{ block.shopify_attributes }}
+          >
+            {%- for option in product.options_with_values -%}
+              <fieldset class="js product-form__input">
+                <div class="option-title_wrapper">
+                  <legend class="varint--label">{{ option.name }}</legend>
+                  {% comment %}<legend class="form__label">{{ option.name }}</legend>{% endcomment %}
+                  {% if option.name == 'size' or option.name == 'Size' %}
+                     <div class="form__label size-chart link">Size Guide</div> 
+                  {% endif %}
+                </div>
+                {%- for value in option.values -%}
+                  <input
+                    type="radio"
+                    id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                    name="{{ option.name }}"
+                    value="{{ value | escape }}"
+                    form="{{ product_form_id }}"
+                    {% if option.selected_value == value %}
+                      checked
+                    {% endif %}
+                  >
+                  <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
+                    {{ value }}
+                  </label>
+                {%- endfor -%}
+              </fieldset>
+            {%- endfor -%}
+            <script type="application/json">
+              {{ product.variants | json }}
+            </script>
+          </variant-radios>
+      {% endunless %}
+
+        <div class="heat-product_timer">
+          <p class="timer"></p>
+        </div>
+
+        <div class="enter-draw_button-container">
+          <button class="button enter-draw_button" id="{%- if customer -%} logged_in {%- else -%} not-logged_in{%- endif -%}" disabled="true">
+            ENTER DRAW
+          </button>
+          <button class="button draw-ended_button custom-hide-button"  disabled="true"> Raffle closed </button>
+          <button class="button draw-entered_button custom-hide-button" disabled="true"> Raffle entered </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% if product.description != blank %}
+<div class="page-width ">
+ <div class="head-product_description grid grid--1-col">
+    <details id="Details-{{ block.id }}-{{ section.id }}" class= "description grid__item margin-top-0">
+      <summary>
+          <div class="summary__title">
+            <h2 class="h4 accordion__title uppercase ">ABOUT PRODUCT</h2>
+            <span class="icon-minus"> {% render 'icon-minus' %} </span>
+            <span class="icon-plus"> {% render 'icon-plus' %} </span>
+          </div>
+       </summary>
+       {%- if product.description != blank -%}
+         <div class="product__description rte quick-add-hidden">
+            {{ product.description }}
+         </div>
+       {%- endif -%}
+    </details>
+    {% if product.metafields.custom.rafle_product_details.value != blank %}
+      <details class= "description grid__item margin-top-0">
+          <summary>
+              <div class="summary__title">
+                <h2 class="h4 accordion__title uppercase ">PRODUCT DETAILS</h2>
+                <span class="icon-minus"> {% render 'icon-minus' %} </span>
+                <span class="icon-plus"> {% render 'icon-plus' %} </span>
+              </div>
+           </summary>
+          <div class="product__description rte quick-add-hidden ">
+            {{ product.metafields.custom.rafle_product_details | metafield_tag }}
+          </div>
+      </details>
+    {% endif %}
+    {% if product.metafields.custom.rafle_information.value != blank %}
+      <details class= "description grid__item margin-top-0">
+        <summary>
+            <div class="summary__title">
+              <h2 class="h4 accordion__title uppercase ">RAFFLE INFORMATION</h2>
+              <span class="icon-minus"> {% render 'icon-minus' %} </span>
+              <span class="icon-plus"> {% render 'icon-plus' %} </span>
+            </div>
+         </summary>
+        <div class="product__description rte quick-add-hidden ">
+          {{ product.metafields.custom.rafle_information | metafield_tag }}
+        </div>
+    </details>
+  {% endif %}
+
+  </div>
+</div>
+{% endif %}
+<noscript type="variant">
+  {% for variant in product.variants %}
+  
+    {% assign raffle_id = variant.metafields.product.raffle_id  %}
+    var raffle_id = {{ raffle_id }};
+    console.log(raffle_id);
+    <input type="hidden" class="variant-raffle" data-varaint-id={{ variant.id }} data-raffle-id={{ raffle_id }}/>
+  
+{% endfor %}
+
+</noscript>
+
+
+<input type="hidden" class="variant-raffle" data-varaint-id="{{ variant.id }}" data-raffle-id="{{ product.metafields.raffleid.raffle_id }}">
+
+<div class="background-popup" style="display:none"></div>
+<div class="form-pop_container">
+  <div class="customer login" >
+    {% render 'icon-close' %}
+    <h1 id="recover" tabindex="-1">
+      {{ 'customer.recover_password.title' | t }}
+    </h1>
+    <div>
+      <p>
+        {{ 'customer.recover_password.subtext' | t }}
+      </p>
+  
+      {%- form 'recover_customer_password' -%}
+        {% assign recover_success = form.posted_successfully? %}
+        <div class="field">
+          <input type="email"
+            value=""
+            name="email"
+            id="RecoverEmail"
+            autocorrect="off"
+            autocapitalize="off"
+            autocomplete="email"
+            {% if form.errors %}
+              aria-invalid="true"
+              aria-describedby="RecoverEmail-email-error"
+              autofocus
+            {% endif %}
+            placeholder="{{ 'customer.login_page.email' | t }}"
+          >
+          <label for="RecoverEmail">
+            {{ 'customer.login_page.email' | t }}
+          </label>
+        </div>
+        {%- if form.errors -%}
+          <small id="RecoverEmail-email-error" class="form__message">
+            <svg aria-hidden="true" focusable="false" role="presentation" viewBox="0 0 13 13">
+              <circle cx="6.5" cy="6.50049" r="5.5" stroke="white" stroke-width="2"/>
+              <circle cx="6.5" cy="6.5" r="5.5" fill="#EB001B" stroke="#EB001B" stroke-width="0.7"/>
+              <path d="M5.87413 3.52832L5.97439 7.57216H7.02713L7.12739 3.52832H5.87413ZM6.50076 9.66091C6.88091 9.66091 7.18169 9.37267 7.18169 9.00504C7.18169 8.63742 6.88091 8.34917 6.50076 8.34917C6.12061 8.34917 5.81982 8.63742 5.81982 9.00504C5.81982 9.37267 6.12061 9.66091 6.50076 9.66091Z" fill="white"/>
+              <path d="M5.87413 3.17832H5.51535L5.52424 3.537L5.6245 7.58083L5.63296 7.92216H5.97439H7.02713H7.36856L7.37702 7.58083L7.47728 3.537L7.48617 3.17832H7.12739H5.87413ZM6.50076 10.0109C7.06121 10.0109 7.5317 9.57872 7.5317 9.00504C7.5317 8.43137 7.06121 7.99918 6.50076 7.99918C5.94031 7.99918 5.46982 8.43137 5.46982 9.00504C5.46982 9.57872 5.94031 10.0109 6.50076 10.0109Z" fill="white" stroke="#EB001B" stroke-width="0.7">
+            </svg>
+            {{ form.errors.messages['form'] }}
+          </small>
+        {%- endif -%}
+  
+        <button >
+          {{ 'customer.login_page.submit' | t }}
+        </button>
+  
+        <a href="#login">
+          {{ 'customer.login_page.cancel' | t }}
+        </a>
+      {%- endform -%}
+    </div>
+  
+    <h1 id="login" tabindex="-1">
+      {{ 'customer.login_page.title' | t }}
+    </h1>
+    <div>
+      {%- if recover_success == true -%}
+        <h3 class="form__message" tabindex="-1" autofocus>
+          <svg aria-hidden="true" focusable="false" role="presentation" viewBox="0 0 13 13">
+            <path d="M6.5 12.35C9.73087 12.35 12.35 9.73086 12.35 6.5C12.35 3.26913 9.73087 0.65 6.5 0.65C3.26913 0.65 0.65 3.26913 0.65 6.5C0.65 9.73086 3.26913 12.35 6.5 12.35Z" fill="#428445" stroke="white" stroke-width="0.7"/>
+            <path d="M5.53271 8.66357L9.25213 4.68197" stroke="white"/>
+            <path d="M4.10645 6.7688L6.13766 8.62553" stroke="white">
+          </svg>
+          {{ 'customer.recover_password.success' | t }}
+        </h3>
+      {%- endif -%}
+      {%- form 'customer_login', novalidate: 'novalidate' -%}
+       <div class="left">
+        {%- if form.errors -%}
+          <h2 class="form__message" tabindex="-1" autofocus>
+            <span class="visually-hidden">{{ 'accessibility.error' | t }} </span>
+            <svg aria-hidden="true" focusable="false" role="presentation" viewBox="0 0 13 13">
+              <circle cx="6.5" cy="6.50049" r="5.5" stroke="white" stroke-width="2"/>
+              <circle cx="6.5" cy="6.5" r="5.5" fill="#EB001B" stroke="#EB001B" stroke-width="0.7"/>
+              <path d="M5.87413 3.52832L5.97439 7.57216H7.02713L7.12739 3.52832H5.87413ZM6.50076 9.66091C6.88091 9.66091 7.18169 9.37267 7.18169 9.00504C7.18169 8.63742 6.88091 8.34917 6.50076 8.34917C6.12061 8.34917 5.81982 8.63742 5.81982 9.00504C5.81982 9.37267 6.12061 9.66091 6.50076 9.66091Z" fill="white"/>
+              <path d="M5.87413 3.17832H5.51535L5.52424 3.537L5.6245 7.58083L5.63296 7.92216H5.97439H7.02713H7.36856L7.37702 7.58083L7.47728 3.537L7.48617 3.17832H7.12739H5.87413ZM6.50076 10.0109C7.06121 10.0109 7.5317 9.57872 7.5317 9.00504C7.5317 8.43137 7.06121 7.99918 6.50076 7.99918C5.94031 7.99918 5.46982 8.43137 5.46982 9.00504C5.46982 9.57872 5.94031 10.0109 6.50076 10.0109Z" fill="white" stroke="#EB001B" stroke-width="0.7">
+            </svg>
+            {{ 'templates.contact.form.error_heading' | t }}
+          </h2>
+          {{ form.errors | default_errors }}
+        {%- endif -%}
+      
+          <label for="CustomerEmail" class="label-login">{{ 'customer.login_page.email' | t }}</label>
+          <div class="field">        
+            <input
+              type="email"
+              name="customer[email]"
+              id="CustomerEmail"
+              autocomplete="email"
+              autocorrect="off"
+              autocapitalize="off"
+              {% if form.errors contains 'form' %}
+                aria-invalid="true"
+              {% endif %}
+              placeholder="{{ 'customer.login_page.email' | t }}"
+            >
+          </div>
+        {%- if form.password_needed -%}
+          <label for="CustomerPassword" class="label-login">{{ 'customer.login_page.password' | t }}</label>
+          <div class="field">          
+            <input
+              type="password"
+              value=""
+              name="customer[password]"
+              id="CustomerPassword"
+              autocomplete="current-password"
+              {% if form.errors contains 'form' %}
+                aria-invalid="true"
+              {% endif %}
+              placeholder="Lost your password?"
+            >
+            <a href="#recover"class="password_placeholder">Lost your password?</a>
+          </div>
+        {%- endif -%}
+      </div>
+        <button class="button--full-width">
+          {{ 'customer.login_page.login_in' | t }}
+        </button>
+        <span class="create_account">Don't have an account? <a href="{{ routes.account_register_url }}">Create one</a></span>
+        <input type="hidden" name="return_to" value="{{ product.url }}?variant={{ product.selected_or_first_available_variant.id }}">
+      {%- endform -%}
+    </div>
+    
+    {%- if shop.checkout.guest_login -%}
+      <div>
+        <hr>
+        <h2>{{ 'customer.login_page.guest_title' | t }}</h2>
+  
+        {%- form 'guest_login' -%}
+          <button>
+            {{ 'customer.login_page.guest_continue' | t }}
+          </button>
+        {%- endform -%}
+      </div>
+    {%- endif -%}
+  </div>
+ {% if customer %}
+  <div class="enter-draw_form" >
+   
+   {% render 'icon-close'%}
+    <form method="POST" class="draw_form" {% if customer.tags contains "verifiedCustomer" %} data-verified="verified" {% else %} data-verified="not-verified" {% endif %}>
+      <h1 class="center">Enter the details </h1>
+      <input type="hidden" name="shopifyCustomerId" value="{% if customer %}{{ customer.id }}{% else %}null{% endif %}"/>
+      <input type="hidden" name="raffleId" value="{{ product.metafields.raffleid.raffle_id.value }}" />
+      <input type="hidden" name="variantId" value="{{ product.selected_or_first_available_variant.id }}"/>
+      <input type="hidden" name="raffleId" class="variant-raffle" data-varaint-id="{{ variant.id }}" data-raffle-id="{{ product.metafields.raffleid.raffle_id }}"/>
+      <input type="hidden" name="productName" value="{{ product.title }}">
+      <input type="hidden" name="productImageUrl" value="{{ product.featured_image | image_url }}">
+
+      <div class="input_wrapper">
+        <label for="fname">First name:</label><br>
+        <input type="text" id="firstname" name="firstname" value="{% if customer.first_name != blank %}{{ customer.first_name }}{% else %} {% endif %}" class="input" required>
+      </div>
+      <div class="input_wrapper">
+        <label for="lname">Last name:</label><br>
+        <input type="text" id="lastname" name="lastname" value="{% if customer.last_name != blank %}{{ customer.last_name }}{% else %} {% endif %}" class="input" required>
+      </div>
+    
+      <label for="address" class="label">Address</label>
+      <div class="input_wrapper">
+        <input type="text" id="Address" name="address" value="{% if customer.addresses[0].address1 != blank %}{{ customer.addresses[0].address1 }}{% else %} {% endif %}" class="input" required>
+      </div>
+      <label for="apartment-no" >Apartment, suite, etc. (optional)</label>
+      <div class="input_wrapper">
+      <input type="text" id="apartment-no" name="apartment" value="" class="input">
+      </div>
+      
+      <label for="pincode" >Pincode</label>
+      <div class="input_wrapper js-pincode">
+      <input type="number" class="input pincode" name="pincode" value="{% if customer.addresses[0].zip != blank %}{{ customer.addresses[0].zip }}{% else %} {% endif %}" required >
+      </div>
+      <label for="country" class="label">Country</label>
+      <div class="input_wrapper">
+      <select name="country" class="input" id="shipping_address_country">
+        <option value="India">India</option>
+      </select>
+      </div>
+
+      <label for="state" class="label">State</label>
+      <div class="input_wrapper">
+        <select name="state" id="state" class="input">
+          {% for city in cityArray -%}
+            {%- if forloop.length > 0 -%}
+              <option value="{{ city }}" {%- if province contains city -%}selected="selected"{% endif %}>{{ city }}</option>
+            {%- endif -%}
+          {% endfor %}           
+        </select> 
+      </div>
+      <label for="city" class="label">City</label>
+      <div class="input_wrapper">
+      <input type="text" id="city" name="city" value="{% if customer.addresses[0].city != blank %}{{ customer.addresses[0].city }}{% else %} {% endif %}" class="input" required>
+      </div>
+      <label for="phone-number" >Phone</label>
+      <div class="input_wrapper js-phone_number">
+      <input type="tel" id="phone_number" name="phone-number" class="input"  value="{% if customer.addresses[0].phone != blank %}{{ customer.addresses[0].phone }} {% else %} {% endif %}" required>
+      </div>
+      <label for="email" >Email</label>
+      <div class="input_wrapper email">
+      <input type="email" id="email" name="email-id" class="input input-disabled" disabled value="{% if customer.email != blank %} {{ customer.email }} {% else %} {% endif %}">
+      </div>
+      <input type="submit" value="Submit" class="button submit_button">
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+
+
+ <div class="size-chart_container">
+    {% render 'icon-close' %}
+    <div class="size-chart_title_wrapper">
+      <span class="size-chart_title">SIZE GUIDE</span> 
+      <a href="#" class="link size-chart_info">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30.636" height="30.637" viewBox="0 0 30.636 30.637">
+         <path id="ruler" d="M24.81,20.886,20.9,24.8a.815.815,0,0,1-.562.22.731.731,0,0,1-.538-.22l-1.539-1.539,1.979-1.979a.251.251,0,0,0,0-.415l-.415-.44a.275.275,0,0,0-.44,0L17.408,22.4l-3.053-3.053,1.979-1.979a.251.251,0,0,0,0-.415l-.415-.44a.275.275,0,0,0-.44,0L13.5,18.493,10.446,15.44l1.979-1.979a.251.251,0,0,0,0-.415l-.415-.44a.275.275,0,0,0-.44,0L9.591,14.585,6.538,11.531,8.517,9.553a.251.251,0,0,0,0-.415L8.1,8.7a.275.275,0,0,0-.44,0L5.683,10.677,2.63,7.623,4.609,5.644a.251.251,0,0,0,0-.415l-.415-.44a.275.275,0,0,0-.44,0L1.775,6.768.236,5.229a.731.731,0,0,1-.22-.538.815.815,0,0,1,.22-.562L4.145.221A.815.815,0,0,1,4.707,0a.731.731,0,0,1,.538.22L24.811,19.788a.731.731,0,0,1,.22.538.815.815,0,0,1-.22.562Z" transform="matrix(-0.259, -0.966, 0.966, -0.259, 6.478, 30.653)" fill="#0a0a0a"/>
+        </svg>What's my size?</a>
+    </div>
+    <div class="size-chart_details">
+       {% render 'lazy-image' src: block.settings.size-chart  %}
+    </div>
+ </div> 
+
+
+<div class='cod_verify'>
+  <div id="otpModal" class="new-modal">
+    <div class="otp-content">
+      <div class="mm-wrapper" id="otp_modal">
+        <div class="cod_modal">
+          <div class="form-wrapper">
+           <div id="close_modal" class="modal-close">×</div>
+            <div class="inner-form">
+              <div class="contact-block">
+                <div class="element-wrap resend-wrapper">
+                  <div class="resend">
+                    <div class="inner-resend">
+                      <span class="count">60</span>
+                      <span class="pulse"></span>
+                    </div>
+                    <button id="resend__otp" class="resend-text" disabled>RESEND OTP</button>
+                  </div>
+                </div>
+
+                <div class="element-wrap">
+                  <div class="contact-form"> 
+                    <i class="contact-icon">
+                      <img class="phone-icon" src="https://cdn.shopify.com/s/files/1/0012/0658/3356/files/phone-call-3.png?55840" />
+                    </i> 
+                    <label class="contact-label">Phone</label>
+                    <input class="input" id="contact_input" name="contact" type="tel" value="{{checkout.shipping_address.phone}}" disabled>
+                  </div>
+                </div>
+                <div class="element-wrap">
+                  <div class="contact-form"> 
+                    <i class="contact-icon">
+                      <img class="otp-icon" src="https://cdn.shopify.com/s/files/1/0012/0658/3356/files/group-155.png?55840" />
+                    </i>
+                    <label class="contact-label">OTP </label>
+                    
+                    <input class="input" id="otp_input" name="otp" type="tel" placeholder="Enter Your OTP" value="" autocomplete="off"  autofocus>
+                  </div>
+                </div>
+                <div class="otp-error">
+                  <span id="otp_msg"></span>
+                  <span id="success_msg"></span>
+                </div>
+                <p class="skip-otp">SKIP OTP</p>
+                <div class="submit-btn">
+                  <button type="button" id="verify_otp" class="btn button">Complete Order</button>
+                </div> 
+                <span class="otp-message"></span>
+              </div>    
+            </div>                        
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="register-message" style="display: none">
+  
+</div>
+
+{% schema %}
+  {
+    "name":"heat-product",
+    "tag":"section",
+    "class":"section",
+    "settings":[],
+    "presets":[
+      {
+        "name":"heat-product"
+      }
+    ]
+  }
+{% endschema %}

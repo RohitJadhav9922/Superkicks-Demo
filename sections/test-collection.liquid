@@ -1,0 +1,275 @@
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+
+<link rel="stylesheet" href="{{ 'component-slider.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'template-collection.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript>{{ 'component-slider.css' | asset_url | stylesheet_tag }}</noscript>
+<noscript>{{ 'template-collection.css' | asset_url | stylesheet_tag }}</noscript>
+
+<div class="live-products-container page-width">
+  {% if section.settings.live_heading != blank %}
+    <div class="live-products-heading">{{ section.settings.live_heading }}</div>
+  {% endif %} 
+  <div class="live_product-container {{ section.settings.live_heading | handleize }} grid grid--3-col-desktop grid--2-col">
+    {% for product in collection.products %}
+      {% for tag in product.tags %}
+        {% if tag contains "Startdate__" %}
+          {% assign now = "now" | date: "%s" | times:1 %}
+          {% assign startDate = tag | split: "Startdate__" | last | date: "%s" | times:1 %}
+        {% endif %}
+        {% if tag contains "Enddate__" %}
+          {% assign endDate = tag | split: "Enddate__" | last | date: "%s" | times:1 %}
+        {% endif %}
+      {% endfor %}
+      {% if startDate != blank and endDate != blank %}
+        {% if now >= startDate and now < endDate %}
+          <div class="product--card product--card-container grid__item " data-EndDate>
+            {% render 'card-product',
+              card_product: product,
+              media_aspect_ratio: 'portrait',
+              show_secondary_image: true,
+              show_vendor: true,
+              section_id: section.id,
+              enable_date: true
+            %}
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+<div class="upcoming-products-container page-width">
+  {% if section.settings.heading != blank %}
+    <div class="upcoming-products-heading">{{ section.settings.heading }}</div>
+  {% endif %}
+  <div class="upcoming_product-container {{ section.settings.heading | handleize }}  carousel--3-col">
+    {% for product in collection.products %}
+      {% for tag in product.tags %}
+        {% if tag contains "Startdate__" %}
+          {% assign now = "now" | date: "%s" | times:1 %}
+          {% assign startDate = tag | split: "Startdate__" | last | date: "%s" | times:1 %}
+        {% endif %}
+        {% if tag contains "Enddate__" %}
+          {% assign endDate = tag | split: "Enddate__" | last | date: "%s" | times:1 %}
+        {% endif %}
+      {% endfor %}
+      {% if startDate != blank and endDate != blank %}
+        {% if now < startDate %}
+          <div class="product--card product--card-container grid__item " data-EndDate>
+            {% render 'card-product',
+              card_product: product,
+              media_aspect_ratio: 'portrait',
+              show_secondary_image: true,
+              show_vendor: true,
+              section_id: section.id,
+              enable_date: true
+            %}
+          </div>
+      {% endif %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+
+<div class="past-products-container page-width">
+  {% if section.settings.heading2 != blank %}
+    <div class="past-products-heading">{{ section.settings.heading2 }}</div>
+  {% endif %}
+  <div class="past_product-container {{ section.settings.heading2 | handleize }} grid grid--3-col-desktop grid--2-col">
+    {% for product in collection.products %}
+      {% for tag in product.tags %}
+        {% if tag contains "Startdate__" %}
+          {% assign now = "now" | date: "%s" | times:1 %}
+          {% assign startDate = tag | split: "Startdate__" | last | date: "%s" | times:1 %}
+        {% endif %}
+        {% if tag contains "Enddate__" %}
+          {% assign endDate = tag | split: "Enddate__" | last | date: "%s" | times:1 %}
+        {% endif %}
+      {% endfor %}
+      {% if startDate != blank and endDate != blank %}
+        {% if now > endDate  %}
+          <div class="product--card product--card-container grid__item " data-EndDate>
+            {% render 'card-product',
+              card_product: product,
+              media_aspect_ratio: 'portrait',
+              show_secondary_image: true,
+              show_vendor: true,
+              section_id: section.id,
+              enable_date: true
+            %}
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+
+<script>
+
+window.addEventListener("DOMContentLoaded",function(){
+var data = {"productData":[
+  {% for product in collection.products %}
+  {"product_name":"{{ product.title | handle }}",
+  {%- for tag in product.tags -%}
+    {%- if tag contains 'Startdate__' -%}{%- assign Start_Time = tag | split: '__' | last -%} "start_date":"{{ Start_Time }}",{% endif %}
+    {%- if tag contains 'Enddate__' -%}{%- assign End_Time = tag | split: '__' | last -%} "end_date":"{{ End_Time }}",{% endif %}
+  {% endfor %}
+  },
+  {% endfor %}]};
+  
+
+
+let mydata = data;
+console.log(data);
+console.log(mydata.productData.length);
+let upcomingFlick = document.querySelector(".upcoming_product-container");
+let cardLength = upcomingFlick.querySelectorAll(".product--card").length;
+if(cardLength > 3){
+  var flkty = new Flickity( upcomingFlick, {
+    // options
+    cellAlign: 'left',
+    contain: true,
+    groupCells: true
+  });
+}
+ 
+
+var now = new Date();
+now = (Date.parse(now) / 1000);
+for(let i=0; i < mydata.productData.length; i++){
+  console.log(mydata.productData[i].start_date);
+  var s_date = new Date(mydata.productData[i].start_date);
+  var month = s_date.toString().split(' ')[1];
+  var launch_date = s_date.toString().split(' ')[2];
+  var startdate = (Date.parse(s_date) / 1000);
+  var e_date = new Date(mydata.productData[i].end_date);
+  var enddate = (Date.parse(e_date) / 1000);
+  let selector = "";
+  if (now > startdate){
+    if(now > enddate){
+      selector = "{{ section.settings.heading2 | handleize }}";
+    } else {
+      selector = "{{ section.settings.live_heading | handleize }}";
+    } 
+  }
+  else if(now < startdate){
+    selector = "{{ section.settings.heading | handleize }}" 
+  }
+  else {
+    selector = "{{ section.settings.live_heading | handleize }}"
+  }
+
+  buildproductCard(selector,mydata.productData[i].product_name,month,launch_date,enddate);
+}
+
+async function buildproductCard(selector,handle,month,launch_date,enddate){ 
+  let container = '.' + selector;
+  let myhandle = `/products/`+handle+`?view=special-category`;
+
+  const response = await fetch(myhandle).then((response) => {
+    if(response.status != 404){                 
+      return response.text();
+    } else {
+      return null;
+    }
+  })
+  if (response) {
+    let parsedCard = new DOMParser().parseFromString(response, "text/html").querySelector('.product--card');
+    console.log(parsedCard);
+    if(selector === "{{ section.settings.live_heading | handleize }}"){
+      setInterval(function() { makeTimer(parsedCard,enddate); }, 1000);
+      parsedCard.querySelector('.release-date').style.display = "none";
+      parsedCard.querySelector('.first-tag').innerHTML = month;
+      parsedCard.querySelector('.second-tag').innerHTML = launch_date;
+    } else {
+      parsedCard.querySelector('.product__sale-timer').style.display = "none";
+      parsedCard.querySelector('.first-tag').innerHTML = month;
+      parsedCard.querySelector('.second-tag').innerHTML = launch_date;
+    }
+    if(selector === "{{ section.settings.heading | handleize }}"){
+      upcomingFlick.append(parsedCard);
+      upcomingFlick = new Flickity( '.upcoming_product-container',{cellAlign: 'center',contain: true, groupCells: true ,arrowShape: { 
+        x0: 20,
+        x1: 55, y1: 40,
+        x2: 60, y2: 35,
+        x3: 30
+      }});
+    } else {
+      document.querySelector(container).appendChild(parsedCard);
+    }
+  }  
+  let upcomingContainer = document.querySelector(".upcoming_product-container");
+  let productCard = await upcomingContainer.querySelectorAll(".product-card-wrapper");
+  productCard.forEach((card) =>{
+      card.classList.add("gap");
+  })
+}
+
+function makeTimer(parsedCard,enddate) { 
+  var saleEndTime = enddate;
+  var now = new Date();
+  now = (Date.parse(now) / 1000);           
+  var timeLeft = saleEndTime - now;
+  if(timeLeft > 0){
+    var days = Math.floor(timeLeft / 86400); 
+    var hours = Math.floor((timeLeft - (days * 86400)) / 3600);
+    var minutes = Math.floor((timeLeft - (days * 86400) - (hours * 3600 )) / 60);
+    var seconds = Math.floor((timeLeft - (days * 86400) - (hours * 3600) - (minutes * 60)));
+    parsedCard.querySelector(".js-sale-days").innerHTML = days + 'd';
+    parsedCard.querySelector(".js-sale-hours").innerHTML = hours + 'h';
+    parsedCard.querySelector(".js-sale-minutes").innerHTML = minutes + 'm';
+    parsedCard.querySelector(".js-sale-secs").innerHTML = seconds + 's';
+  } else {
+    document.querySelector('.'+"{{ section.settings.heading2 | handleize }}").append(parsedCard);
+    parsedCard.querySelector('.product__sale-timer').style.display = "none";
+    parsedCard.querySelector('.release-date').style.display = "flex";
+  }
+}
+
+
+  
+})
+
+
+
+
+</script>
+
+
+
+
+
+
+{% schema %}
+{
+  "name": "New release Products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Upcoming drops ",
+      "default": "UPCOMING DROPS"
+    },
+    {
+      "type": "text",
+      "id": "heading2",
+      "label": "Past drops",
+      "default": "PAST DROPS"
+    },
+    {
+      "type": "text",
+      "id": "live_heading",
+      "label": "Live drops ",
+      "default": "LIVE DROPS"
+    }
+  ],
+  "presets": [
+    {
+      "name": "test Products"
+    }
+  ]
+}
+{% endschema %}

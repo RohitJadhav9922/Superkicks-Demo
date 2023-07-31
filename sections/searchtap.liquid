@@ -1,0 +1,759 @@
+
+<!-- Start of SearchTap -->
+<script src="{{ 'searchtap.js' | asset_url }}" defer></script> 
+{{ 'searchtap.css' | asset_url | stylesheet_tag }} <!-- searchtap.js refers to build js file  -->
+
+   <script>
+            const app_id = "5HHIJ681W3KYII75863ELEPV";
+            const read_token = "C9E395EQTFEZ7X6Y5YYFRWLH";
+            const collection_id = "U9SBPF8KJ6XL242L6694NIPG";
+            const st_trending_id = "8DMLYU39XY6V5ZV8BYWDZSDQ";
+   </script>
+                    
+              {% raw %}
+<div id="searchModalContainer" class="st-container" v-cloak>
+            <div id="searchModal" v-show="isSearchOpen">
+                <div :class="{'st-loading': spinner}" v-show="!hasErrorEncountered && !noResult">
+                    <div v-show="!spinner">
+                        <!-- Filter bar start -->
+                        <div class="st-filter-bar st-hidden-desktop" style="">
+                            <div id="sortFilter" class="sortFilterCon">
+                                <div class="filter_h" v-on:click="isMobileFilterOpen = true">
+                        <span class="disInBlock"><span>
+                            <span class="filter-applied-ellip" v-show="isFilterSelected"></span>
+                            <svg focusable="false" width="14px" viewBox="0 0 19 20"
+                                                            role="presentation" class="icon icon--filter"><path
+                                d="M17.0288086 4.01391602L11 9v7.0072021l-4 2.008545V9L1.01306152 4.01391602V1H17.0288086z"
+                                stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="square"></path></svg></span> Filter by</span>
+                                </div>
+                                <div class="sort_h" v-on:click="isSortingSelected = true">
+                            <span class="disInBlock"><span>
+                                <span class="filter-applied-ellip" v-show="currentSortValue !== 'Relevance'"></span>
+                                <svg version="1.1" id="Layer_1" width="14px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 460.088 460.088" xml:space="preserve"><g><g><g><path d="M25.555,139.872h257.526V88.761H25.555C11.442,88.761,0,100.203,0,114.316C0,128.429,11.442,139.872,25.555,139.872z"></path> <path
+                                    d="M25.555,242.429h257.526v-51.111H25.555C11.442,191.318,0,202.76,0,216.874C0,230.988,11.442,242.429,25.555,242.429z"></path> <path
+                                    d="M25.555,293.874v0.001C11.442,293.875,0,305.316,0,319.43s11.442,25.555,25.555,25.555h178.91
+        c-2.021-6.224-3.088-12.789-3.088-19.523c0-11.277,2.957-22.094,8.48-31.588H25.555z"></path> <path d="M450.623,302.611c-12.62-12.621-33.083-12.621-45.704,0l-26.535,26.535V52.926c0-17.849-14.469-32.317-32.318-32.317
+        s-32.318,14.469-32.318,32.317v276.22l-26.535-26.535c-12.621-12.62-33.083-12.621-45.704,0
+        c-12.621,12.621-12.621,33.083,0,45.704l81.7,81.699c12.596,12.6,33.084,12.643,45.714,0l81.7-81.699
+        C463.243,335.694,463.244,315.232,450.623,302.611z"></path></g></g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg></span> Sort by</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- Filter bar end -->
+                        <div class="st-toolbox st-toolbox-horizontal st-hidden-sm">
+                            <div class="st-sidebar-fixed ">
+                                <div class="st-sidebar-content st-toolbox-left">
+                                    <div class="st-filter-label" style="display: none;">Filter by</div>
+                                    <div class="st-toolbox-item st-select-menu" v-for="filter in filters" v-bind:key="filter.field" v-show="filter.values.length>0">
+                                        <div class="st-select-menu-toggle" v-on:click="toggleOpenFilter(filter.title)">{{ filter.title }} <span class="st-down-arrow"><svg
+                                                focusable="false" width="14px" viewBox="0 0 12 8" role="presentation"
+                                                class="icon st-icon--arrow-bottom" :class="{'st-icon--arrow-up': filter.isOpenMobile  }"><path stroke="currentColor"
+                                                                                         stroke-width="2"
+                                                                                         d="M10 2L6 6 2 2" fill="none"
+                                                                                         stroke-linecap="square"></path></svg></span>
+                                        </div>
+
+                                        <ul class="st-filter-items" v-if="filter.type === 'textFacet'">
+                                            <li v-for="value in filter.selected"
+                                                v-bind:key="value">
+                                                <div class="outer-checkbox">
+                                                    <label class="st-flex">
+                                                        <input v-model="filter.selected" type="checkbox" v-bind:value="value" v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, value)">
+                                                        <span class="st-checkbox"></span>
+                                                        <div class="st-filter-label-container">
+                                                            <div class="filter-label">{{ value }}</div>
+                                                            <span class="st-product-number">({{
+                                                                    getFilterCount(filter, value)
+                                                                }})</span>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </li>
+                                            <li v-for="value in getNonSelectedValues(filter)"
+                                                v-bind:key="value">
+                                                <div class="outer-checkbox">
+                                                    <label class="st-flex">
+                                                        <input v-model="filter.selected" type="checkbox"
+                                                               v-bind:value="value"
+                                                               v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, value)">
+                                                        <span class="st-checkbox"></span>
+                                                        <div class="st-filter-label-container">
+                                                            <div class="filter-label">{{ value }}</div>
+                                                            <span class="st-product-number">({{
+                                                                    getFilterCount(filter, value)
+                                                                }})</span>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </li>
+                                            </ul>
+                                        <ul class="st-filter-items" v-else-if="filter.type === 'numericFacet'">
+                                            <li v-for="value in filter.selected" v-bind:key="value[0]">
+                                                <div class="outer-checkbox">
+                                                    <label class="st-flex" v-if="filter.field === 'discount'">
+                                                        <input  v-model="filter.selected" type="checkbox"
+                                                                v-bind:value=[value[0],value[1]]
+                                                                v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, [value[0],value[1]])">
+                                                        <span class="st-checkbox"></span>
+                                                        <div class="st-filter-label-container">
+                                                            <div class="filter-label">{{ value[0] }}% and Above</div>
+                                                            <span class="st-product-number">({{
+                                                                    getFilterCount(filter, value[0])
+                                                                }})</span>
+                                                        </div>
+                                                    </label>
+                                                    <label class="st-flex" v-else-if="filter.field === 'discounted_price'">
+                                                        <input v-model="filter.selected" type="checkbox"
+                                                               v-bind:value=[value[0],value[1]]
+                                                               v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, [value[0],value[1]])">
+                                                        <span class="st-checkbox"></span>
+                                                        <div class="st-filter-label-container">
+
+                                                            <div v-if="Number(value[1])==9999999" class="filter-label">
+                                                                            <span>
+                                                                                <span>{{ currency }} </span>{{ priceModifier(value[0]) }}</span>
+                                                                <span> And Above</span></div>
+                                                            <div v-else class="filter-label">
+                                                                            <span>
+                                                                                <span>{{ currency }} </span>{{ priceModifier(value[0]) }}</span>
+                                                                <span> - </span>
+                                                                <span>
+                                                                                <span>{{ currency }} </span>{{ priceModifier(value[1]) }}</span>
+                                                            </div>
+
+                                                            <span class="st-product-number">({{
+                                                                    getFilterCount(filter, value[0])
+                                                                }})</span>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </li>
+                                            <li v-for="value in getNonSelectedValues(filter)" v-bind:key="value.min">
+                                                <div class="outer-checkbox">
+                                                    <label class="st-flex" v-if="filter.field === 'discount'">
+                                                        <input v-model="filter.selected" type="checkbox" v-bind:value=[value.min,value.max] v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, [value.min,value.max])">
+                                                        <span class="st-checkbox"></span>
+                                                        <div class="st-filter-label-container">
+                                                            <div class="filter-label">{{ value.min }}% and Above</div>
+                                                            <span class="st-product-number">({{value.count }})</span>
+                                                        </div>
+                                                    </label>
+                                                    <label class="st-flex" v-else-if="filter.field === 'discounted_price'">
+                                                        <input v-model="filter.selected" type="checkbox" v-bind:value=[value.min,value.max] v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, [value.min,value.max])">
+                                                        <span class="st-checkbox"></span>
+                                                        <div class="st-filter-label-container">
+                                                            <div v-if="value.max === 9999999" class="filter-label">
+                                                                <span><span>{{ currency }} </span>{{ priceModifier(value.min) }}</span>
+                                                                <span> And Above</span></div>
+                                                            <div v-else class="filter-label">
+                                                                <span><span>{{ currency }} </span>{{ priceModifier(value.min) }}</span>
+                                                                <span> - </span>
+                                                                <span><span>{{ currency }} </span>{{ priceModifier(value.max) }}</span>
+                                                            </div>
+                                                            <span class="st-product-number">({{value.count}})</span>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="st-toolbox-right st-hidden-sm">
+                                <div class="st-form-group">
+                                    <div class="st-sort-dropdown">
+                                                <span class="st-sorting-btn"> <span
+                                                        style="font-sixe: 16px; font-weight: 400; letter-spacing: 0; text-transform: capitalize; margin-right: 0;">Sort by:</span>
+                                       <span class="st-sort-box">
+                                           <span style="padding-left:5px;"> {{ currentSortValue }}</span><span class="st-down-arrow"><svg
+                                               focusable="false" width="14px" viewBox="0 0 12 8" role="presentation"
+                                               class="icon st-icon--arrow-bottom"><path stroke="currentColor"
+                                                                                        stroke-width="2"
+                                                                                        d="M10 2L6 6 2 2" fill="none"
+                                                                                        stroke-linecap="square"></path></svg></span>
+                                                    </span>
+                                                <ul class="st-sorting">
+                                                    <li v-for="sort in sorts" v-bind:key="sort.label"
+                                                        v-on:click="sortResults(sort.label)">
+                                                        <a :class="{'active-sort': currentSortValue === sort.label }">{{
+                                                                sort.label
+                                                            }}</a>
+                                                    </li>
+                                                </ul>
+                                                </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="st-selected-filters">
+                            <div class="st-selected-filters-title"></div>
+                            <div class="product-facet__active-list tag-list">
+                                <span class="selected-filter-bar-caption st-hidden-sm" v-show="selectedFilters.length">Now shopping by:</span>
+                                <div class="tag-item" v-for="filter in selectedFilters"
+                                     v-bind:key="filter.value" v-on:click="removeSelectedFilter(filter)">
+                                    <a aria-label="Delete" class="tag__icon tap-area">
+                                        <svg focusable="false" width="10" height="10" viewBox="0 0 14 14"
+                                             class="icon icon--close">
+                                            <path d="M13 13L1 1M13 1L1 13" stroke="currentColor"
+                                                  stroke-width="1" fill="none"></path>
+                                        </svg>
+                                    </a>
+                                    <span v-if="filter.type === 'textFacet'">{{ filter.value }}</span>
+                                    <span v-if="filter.type === 'numericFacet' && filter.field !== 'discount'">
+                                        <div v-if="filter.value[1] === 9999999" class="filter-label">
+<span><span>{{ currency }} </span>{{ priceModifier(filter.value[0]) }} </span>
+<span> And Above</span></div>
+<div v-else class="filter-label">
+<span><span>{{ currency }} </span>{{ priceModifier(filter.value[0]) }}</span>
+ <span> - </span>
+ <span><span>{{ currency }} </span>{{ priceModifier(filter.value[1]) }}</span>
+</div>
+<!--                                              <span>₹ </span>{{-->
+<!--                                            priceModifier(filter.value[0])-->
+<!--                                        }}<span> - </span><span><span>₹ </span>{{-->
+<!--                                            priceModifier(filter.value[1])-->
+<!--                                        }} </span>-->
+<!--                                          </span>-->
+                                    <span v-if="filter.type === 'numericFacet' && filter.field === 'discount'">
+                                              <span>{{ filter.value[0] }}% and Above</span>
+                                          </span>
+                                    <span v-if="filter.type === 'single'">{{ filter.value[0] }}</span>
+                                </div>
+                                <div class="tag-item st-hidden-desktop" v-show="selectedFilters.length" v-on:click="removeAllFilters()"><span>Clear all</span></div>
+                            </div>
+                            <a data-action="clear-filters" class="st-last-clear-tag"
+                               v-show="selectedFilters.length" v-on:click="removeAllFilters()">
+                                <div class="tag-item st-hidden-sm">Clear all</div>
+                            </a>
+                        </div>
+                        <div class="st-trending-box" style="display: none;">
+                            <div class="container">
+                                <div id="st-before-search" style="">
+                                    <div class="st-trending-header" style="">
+                                        <svg viewBox="0 0 500 500" width="18" height="18" fill="#f94" class="st-icon"
+                                             data-v-26850a1a="">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="500" viewBox="0 0 48 48"
+                                                 width="500"
+                                                 data-v-26850a1a="">
+                                                <path d="M32 12l4.59 4.59-9.76 9.75-8-8-14.83 14.83 2.83 2.83 12-12 8 8 12.58-12.59 4.59 4.59v-12z"
+                                                      data-v-26850a1a=""></path>
+                                                <path d="M0 0h48v48h-48z" fill="none" data-v-26850a1a=""></path>
+                                            </svg>
+                                        </svg>
+                                        <span class="st-heading-text">
+                                                <span class="recent-icon st-hidden-desktop"></span>Trending Searches</span>
+                                    </div>
+                                    <ul class="st-trending-list" style="">
+                                        <li class="st-trending-label">
+                                            <svg viewBox="0 0 500 500" width="18" height="18" fill="#f94"
+                                                 class="st-icon"
+                                                 data-v-26850a1a="">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="500" viewBox="0 0 48 48"
+                                                     width="500"
+                                                     data-v-26850a1a="">
+                                                    <path d="M32 12l4.59 4.59-9.76 9.75-8-8-14.83 14.83 2.83 2.83 12-12 8 8 12.58-12.59 4.59 4.59v-12z"
+                                                          data-v-26850a1a=""></path>
+                                                    <path d="M0 0h48v48h-48z" fill="none" data-v-26850a1a=""></path>
+                                                </svg>
+                                            </svg>
+                                            Combo
+                                        </li>
+                                        <li class="st-trending-label">
+                                            <svg viewBox="0 0 500 500" width="18" height="18" fill="#f94"
+                                                 class="st-icon"
+                                                 data-v-26850a1a="">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="500" viewBox="0 0 48 48"
+                                                     width="500"
+                                                     data-v-26850a1a="">
+                                                    <path d="M32 12l4.59 4.59-9.76 9.75-8-8-14.83 14.83 2.83 2.83 12-12 8 8 12.58-12.59 4.59 4.59v-12z"
+                                                          data-v-26850a1a=""></path>
+                                                    <path d="M0 0h48v48h-48z" fill="none" data-v-26850a1a=""></path>
+                                                </svg>
+                                            </svg>
+                                            Baby Shampoo
+                                        </li>
+                                        <li class="st-trending-label">
+                                            <svg viewBox="0 0 500 500" width="18" height="18" fill="#f94"
+                                                 class="st-icon"
+                                                 data-v-26850a1a="">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="500" viewBox="0 0 48 48"
+                                                     width="500"
+                                                     data-v-26850a1a="">
+                                                    <path d="M32 12l4.59 4.59-9.76 9.75-8-8-14.83 14.83 2.83 2.83 12-12 8 8 12.58-12.59 4.59 4.59v-12z"
+                                                          data-v-26850a1a=""></path>
+                                                    <path d="M0 0h48v48h-48z" fill="none" data-v-26850a1a=""></path>
+                                                </svg>
+                                            </svg>
+                                            Baby kit
+                                        </li>
+                                        <li class="st-trending-label">
+                                            <svg viewBox="0 0 500 500" width="18" height="18" fill="#f94"
+                                                 class="st-icon"
+                                                 data-v-26850a1a="">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="500" viewBox="0 0 48 48"
+                                                     width="500"
+                                                     data-v-26850a1a="">
+                                                    <path d="M32 12l4.59 4.59-9.76 9.75-8-8-14.83 14.83 2.83 2.83 12-12 8 8 12.58-12.59 4.59 4.59v-12z"
+                                                          data-v-26850a1a=""></path>
+                                                    <path d="M0 0h48v48h-48z" fill="none" data-v-26850a1a=""></path>
+                                                </svg>
+                                            </svg>
+                                            Rich Moisture
+                                        </li>
+                                        <li class="st-trending-label">
+                                            <svg viewBox="0 0 500 500" width="18" height="18" fill="#f94"
+                                                 class="st-icon"
+                                                 data-v-26850a1a="">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="500" viewBox="0 0 48 48"
+                                                     width="500"
+                                                     data-v-26850a1a="">
+                                                    <path d="M32 12l4.59 4.59-9.76 9.75-8-8-14.83 14.83 2.83 2.83 12-12 8 8 12.58-12.59 4.59 4.59v-12z"
+                                                          data-v-26850a1a=""></path>
+                                                    <path d="M0 0h48v48h-48z" fill="none" data-v-26850a1a=""></path>
+                                                </svg>
+                                            </svg>
+                                            Dove Travel Kit
+                                        </li>
+                                        <li class="st-trending-label">
+                                            <svg viewBox="0 0 500 500" width="18" height="18" fill="#f94"
+                                                 class="st-icon"
+                                                 data-v-26850a1a="">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="500" viewBox="0 0 48 48"
+                                                     width="500"
+                                                     data-v-26850a1a="">
+                                                    <path d="M32 12l4.59 4.59-9.76 9.75-8-8-14.83 14.83 2.83 2.83 12-12 8 8 12.58-12.59 4.59 4.59v-12z"
+                                                          data-v-26850a1a=""></path>
+                                                    <path d="M0 0h48v48h-48z" fill="none" data-v-26850a1a=""></path>
+                                                </svg>
+                                            </svg>
+                                            Shampoo Set
+                                        </li>
+                                        <li class="st-trending-label">
+                                            <svg viewBox="0 0 500 500" width="18" height="18" fill="#f94"
+                                                 class="st-icon"
+                                                 data-v-26850a1a="">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="500" viewBox="0 0 48 48"
+                                                     width="500"
+                                                     data-v-26850a1a="">
+                                                    <path d="M32 12l4.59 4.59-9.76 9.75-8-8-14.83 14.83 2.83 2.83 12-12 8 8 12.58-12.59 4.59 4.59v-12z"
+                                                          data-v-26850a1a=""></path>
+                                                    <path d="M0 0h48v48h-48z" fill="none" data-v-26850a1a=""></path>
+                                                </svg>
+                                            </svg>
+                                            Lotion Combo
+                                        </li>
+                                        <!---->
+                                    </ul>
+                                    <div class="st-autocomplete-footer"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="st-show-result">
+										<span class="st-show-text">
+											<span class="st-hidden-sm">Showing </span>
+											<span>{{ totalHits }}</span>
+											<span class="st-hidden-desktop" style="padding-left: 4px;"><span> Result</span>
+                                                <span class="result-mob" v-if="totalHits > 1">s</span>
+											</span>
+											<span class="st-hidden-sm"><span> Result</span><span class="result-mob"
+                                                                                    v-if="totalHits > 1">s</span> for </span>
+											<span class="txt-red st-hidden-sm">" {{ truncateString(query, 18) }} "</span>
+										</span>
+                        </div>
+                        <div class="st-row st-cols-2 st-cols-sm-3 st-cols-md-3 st-product-wrapper">
+                            <div class="st-product-wrap" v-for="product in results"
+                                 v-bind:key="product.id">
+                                <div class="st-product" @click="recordProductView(product.title)">
+                                    <figure class="st-product-media">
+                                        <a v-bind:href="getProductUrl(product.handle)">
+                                            <img v-bind:src="imageModifier(product.image)"
+                                                 v-bind:title="product.title">
+                                            <img v-if="product.images[1]" v-bind:src="imageModifier(product.images[1])"
+                                                 v-bind:title="product.title">
+                                        </a>
+                                        <div class="st-product-label-group">
+                                            <label class="st-product-label label-new" v-if="product.discounted_price !== product.price && !product.st_badge.includes('heat') && product.isActive !== 0">Sale</label>
+                                            <label class="st-product-label label-stock" v-if="product.isActive === 0">Sold Out</label>
+                                            <label class="st-product-label label-heat" v-if="product.isActive !== 0 && product.st_badge && product.st_badge.includes('heat')">Heat</label>
+                                        </div>
+                                        <div class="st-product-action-vertical" style="display: none;">
+                                            <a href="#" class="btn-product-icon btn-wishlist" title="Add to wishlist"><i
+                                                    class='bx bx-heart'></i></a>
+                                        </div>
+                                    </figure>
+                                    <div class="st-product-details">
+                                        <div class="st-product-cat" v-if="product.vendor">
+                                            <h6 href="">{{ product.vendor }}</h6>
+                                        </div>
+                                        <div class="st-product-name" v-if="product.handle">
+                                            <a v-bind:href="getProductUrl(product.handle)">{{ product.title }}</a>
+                                        </div>
+
+                                        <div class="st-ratings-container" style="display: none;">
+                                            <i class="bx bxs-star st-text-warning"></i>
+                                            <i class="bx bxs-star st-text-warning"></i>
+                                            <i class="bx bxs-star st-text-warning"></i>
+                                            <i class="bx bxs-star st-text-warning"></i>
+                                            <i class="bx bxs-star st-text-warning"></i>
+                                            <a href="" class="st-rating-reviews" style="display: none;">()</a>
+                                        </div>
+                                        <div class="st-product-price">
+                                            <span class="new-price" v-if="product.discounted_price" v-bind:class="{'only-price': product.discounted_price === product.price }">{{ currency }}{{ priceModifier(product.discounted_price) }}</span>
+                                            <span class="old-price" v-if="product.discounted_price !== product.price">{{ currency }} {{ priceModifier(product.price) }}</span>
+                                        </div>
+
+                                        <div class="st-product-form st-product-size" style="display: none;">
+                                            <div class="st-product-form-group">
+                                                <div class="st-product-variations">
+                                                    <a class="size" href="#">XL</a>
+                                                    <a class="size" href="#">L</a>
+                                                    <a class="size" href="#">M</a>
+                                                    <a class="size" href="#">S</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="st-product-form st-product-color" style="display: none;">
+                                            <div class="st-product-variations">
+                                                <a class="color" href="#"
+                                                   style="background-color: #c8c7ce; border-radius: 50%; width: 20px; height: 20px;"></a>
+                                                <a class="color" href="#"
+                                                   style="background-color: #537548; border-radius: 50%; width: 20px; height: 20px;"></a>
+                                                <a class="color" href="#"
+                                                   style="background-color: #484975; border-radius: 50%; width: 20px; height: 20px;"></a>
+                                                <a class="color" href="#"
+                                                   style="background-color: #313131; border-radius: 50%; width: 20px; height: 20px;"></a>
+                                            </div>
+                                        </div>
+                                        <div class="st-product-form st-product-swatch" style="display: none;">
+                                            <div class="st-product-variations">
+                                                <a class="swatch" data-src="images/product/1.jpg" href="#"
+                                                   style="background-image: url(images/product/1.jpg); background-color: #c8c7ce; border-radius: 50%;"></a>
+                                                <a class="swatch active" data-src="images/product/2.jpg" href="#"
+                                                   style="background-image: url(images/product/2.jpg); background-color: #c8c7ce; border-radius: 50%;"></a>
+                                            </div>
+                                        </div>
+                                        <div class="st-product-action" style="display: none;">
+                                            <div class="st-btn-product">Add to cart</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- INFINITY SCROLL-->
+<!--                        <div v-if="results.length && !resultsEnd"-->
+<!--                             v-observe-visibility="handleScrolledToBottom">.-->
+<!--                        </div>-->
+                        <div class="st-pagination"
+                             v-if="results && results.length > 0 && pageCount > 1">
+                            <Paginate :page-count="pageCount" :page-range="getPageRange" v-model="currPage"
+                                      prev-text='<span class="st-left-arrow"><svg focusable="false" width="14px" viewBox="0 0 12 8" role="presentation" class="icon st-icon--arrow-bottom"><path stroke="currentColor" stroke-width="2" d="M10 2L6 6 2 2" fill="none" stroke-linecap="square"></path></svg></span>'
+                                      next-text='<span class="st-right-arrow"><svg focusable="false" width="14px" viewBox="0 0 12 8" role="presentation" class="icon st-icon--arrow-bottom"><path stroke="currentColor" stroke-width="2" d="M10 2L6 6 2 2" fill="none" stroke-linecap="square"></path></svg></span>'
+                                      :container-class="'pagination'" :page-class="'page-item'"
+                                      :next-class="'page-item st-next'" :prev-class="'page-item st-prev'"
+                                      :click-handler="loadMore" :hide-prev-next="true"
+                                      :break-view-class="'st-break-view'"></Paginate>
+                        </div>
+                        <div class="st-results-loader"
+                             v-if="infiniteScrollLoader"></div>
+                        <div id="result-ends" class="text-center"
+                             v-if="resultsEnd"><span
+                                data-v-1b2c013f="" class="st-btn">Results end here</span></div>
+                        <div class="st-text-center" style="display: none;">
+                            <a class="st-btn" href="">No more products</a>
+                        </div>
+                        <div class="st-overlay-active" :class="{'st-sort-isOpen': isSortingSelected }" v-show="isSortingSelected">
+                            <div class="st-sorting-wrapper">
+                                <div class="st-sorting-inner">
+                                    <ul class="list">
+                                        <li v-for="sort in sorts" v-bind:key="sort.label"
+                                            v-on:click="sortResults(sort.label)">
+                                            <div class="ripple-container">
+                                                <button v-bind:value="sort.label"
+                                                        :class="{'active-sort': currentSortValue === sort.label }" class="">
+                                                    <span class="sortByValues">{{ sort.label }}</span>
+                                                </button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mobilesearch st-hidden-desktop" v-show="isMobileFilterOpen">
+                            <div id="mobileHeader" class="filterHeader"> Filter
+                                <span class="st-pull-right">
+                                            <span class="st-reset-all-mobile" v-show="isFilterSelected" v-on:click="removeAllFilters()">Clear All</span>
+                                            <span class="st-filter-head-cross" v-on:click="isMobileFilterOpen = false">
+                                                <svg height="15px" viewBox="0 0 512.001 512.001" width="15px" x="0px" xml:space="preserve" y="0px"><path d="M284.286,256.002L506.143,34.144c7.811-7.811,7.811-20.475,0-28.285c-7.811-7.81-20.475-7.811-28.285,0L256,227.717    L34.143,5.859c-7.811-7.811-20.475-7.811-28.285,0c-7.81,7.811-7.811,20.475,0,28.285l221.857,221.857L5.858,477.859    c-7.811,7.811-7.811,20.475,0,28.285c3.905,3.905,9.024,5.857,14.143,5.857c5.119,0,10.237-1.952,14.143-5.857L256,284.287    l221.857,221.857c3.905,3.905,9.024,5.857,14.143,5.857s10.237-1.952,14.143-5.857c7.811-7.811,7.811-20.475,0-28.285    L284.286,256.002z" data-old_color="#000000" data-original="#000000" fill="#000000" class="active-path"></path></svg>
+                                            </span>
+							</span>
+                            </div>
+                            <div class="sidefilter">
+                                <ul>
+                                    <li :class="{'active': filter.isOpenMobile }"
+                                        v-for="filter in filters" v-bind:key="filter.field"
+                                        v-on:click="toggleOpenFilter(filter.title)">
+                                        <a>{{ filter.title }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="st-row">
+                                <div class="sidefiltervalue">
+                                    <div class="st-widget" v-for="filter in filters"
+                                         v-bind:key="filter.field">
+                                        <div>
+                                            <ul class="st-widget-body st-filter-items"
+                                                v-if="filter.type === 'textFacet' && filter.isOpenMobile ">
+                                                <li v-for="value in filter.selected" v-bind:key="value">
+                                                    <div class="outer-checkbox">
+                                                        <label class="st-flex">
+                                                            <input v-model="filter.selected" type="checkbox"
+                                                                   v-bind:value="value"
+                                                                   v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, value)">
+                                                            <span class="st-checkbox"></span>
+                                                            <div class="st-filter-label-container">
+                                                                <div class="filter-label">{{ value }}</div>
+                                                                <span class="st-product-number">({{
+                                                                        getFilterCount(filter, value)
+                                                                    }})</span>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                                <li v-for="value in getNonSelectedValues(filter)"
+                                                    v-bind:key="value">
+                                                    <div class="outer-checkbox">
+                                                        <label class="st-flex">
+                                                            <input v-model="filter.selected" type="checkbox"
+                                                                   v-bind:value="value"
+                                                                   v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, value)">
+                                                            <span class="st-checkbox"></span>
+                                                            <div class="st-filter-label-container">
+                                                                <div class="filter-label">{{ value }}</div>
+                                                                <span class="st-product-number">({{
+                                                                        getFilterCount(filter, value)
+                                                                    }})</span>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <ul class="st-widget-body st-filter-items"
+                                                v-else-if="filter.type === 'numericFacet' && filter.isOpenMobile ">
+
+                                                <li v-for="value in filter.selected" v-bind:key="value[0]">
+                                                    <div class="outer-checkbox">
+                                                        <label class="st-flex" v-if="filter.field === 'discount'">
+                                                            <input v-model="filter.selected" type="checkbox"
+                                                                   v-bind:value=[value[0],value[1]]
+                                                                   v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, [value[0],value[1]])">
+                                                            <span class="st-checkbox"></span>
+                                                            <div class="st-filter-label-container">
+                                                                <div class="filter-label">{{ value[0] }}% and
+                                                                    Above
+                                                                </div>
+                                                                <span class="st-product-number">({{ getFilterCount(filter, value[0]) }})</span>
+                                                            </div>
+                                                        </label>
+                                                        <label class="st-flex" v-else-if="filter.field === 'discounted_price'">
+                                                            <input v-model="filter.selected" type="checkbox"
+                                                                   v-bind:value=[value[0],value[1]]
+                                                                   v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, [value[0],value[1]])">
+                                                            <span class="st-checkbox"></span>
+                                                            <div class="st-filter-label-container">
+                                                                <div v-if="Number(value[1])==9999999" class="filter-label">
+                                                                            <span>
+                                                                                <span>{{ currency }} </span>{{ priceModifier(value[0]) }}</span>
+                                                                    <span> And Above</span></div>
+                                                                <div v-else class="filter-label">
+                                                                            <span>
+                                                                                <span>{{ currency }} </span>{{ priceModifier(value[0]) }}</span>
+                                                                    <span> - </span>
+                                                                    <span>
+                                                                                <span>{{ currency }} </span>{{ priceModifier(value[1]) }}</span>
+                                                                </div>
+                                                                <span class="st-product-number">({{ getFilterCount(filter, value[0]) }})</span>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                </li>
+
+                                                <li v-for="value in getNonSelectedValues(filter)"
+                                                    v-bind:key="value.min">
+                                                    <div class="outer-checkbox">
+                                                        <label class="st-flex" v-if="filter.field === 'discount'">
+                                                            <input v-model="filter.selected" type="checkbox"
+                                                                   v-bind:value=[value.min,value.max]
+                                                                   v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, [value.min,value.max])">
+                                                            <span class="st-checkbox"></span>
+                                                            <div class="st-filter-label-container">
+                                                                <div class="filter-label">{{ value.min }}% and
+                                                                    Above
+                                                                </div>
+                                                                <span class="st-product-number">({{ value.count }})</span>
+                                                            </div>
+                                                        </label>
+                                                        <label class="st-flex" v-else-if="filter.field === 'discounted_price'">
+                                                            <input v-model="filter.selected" type="checkbox"
+                                                                   v-bind:value=[value.min,value.max]
+                                                                   v-on:change="pushFilters(filter),filterAnalytics('left', filter.title, [value.min,value.max])">
+                                                            <span class="st-checkbox"></span>
+                                                            <div class="st-filter-label-container">
+                                                                <div v-if="Number(value.max)==9999999" class="filter-label">
+                                                                            <span>
+                                                                                <span>{{ currency }} </span>{{ priceModifier(value.min) }}</span>
+                                                                    <span> And Above</span></div>
+                                                                <div v-else class="filter-label">
+                                                                            <span>
+                                                                                <span>{{ currency }} </span>{{ priceModifier(value.min) }}</span>
+                                                                    <span> - </span>
+                                                                    <span>
+                                                                                <span>{{ currency }} </span>{{ priceModifier(value.max) }}</span>
+                                                                </div>
+                                                                <span class="st-product-number">({{ value.count }})</span>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <!--                                                        <ul class="st-widget-body st-filter-items"-->
+                                            <!--                                                            v-else-if="filter.type === 'availability' && filter.isOpenMobile ">-->
+                                            <!--                                                            <li>-->
+                                            <!--                                                                <div class="outer-checkbox">-->
+                                            <!--                                                                    <label class="st-flex">-->
+                                            <!--                                                                        <input v-model="filter.selected" type="checkbox"-->
+                                            <!--                                                                               v-bind:value="filter.values"-->
+                                            <!--                                                                               v-on:change="pushFilters(filter)">-->
+                                            <!--                                                                        <span class="st-checkbox"></span>-->
+                                            <!--                                                                        <div class="st-filter-label-container">-->
+                                            <!--                                                                            <div class="filter-label">{{ filter.values[0] }}-->
+                                            <!--                                                                            </div>-->
+                                            <!--                                                                        </div>-->
+                                            <!--                                                                    </label>-->
+                                            <!--                                                                </div>-->
+                                            <!--                                                            </li>-->
+                                            <!--                                                        </ul>-->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="apply-all" v-on:click="isMobileFilterOpen = false"><a class="apply-btn">Apply Filter</a>
+                            </div>
+                        </div>
+                        <div class="st-scroll-top" v-on:click="goToTop"><span class="st-up-arrow"><svg focusable="false" width="14px"
+                                                                                                       viewBox="0 0 12 8"
+                                                                                                       role="presentation"
+                                                                                                       class="icon st-icon--arrow-bottom"><path
+                                stroke="currentColor" stroke-width="2" d="M10 2L6 6 2 2" fill="none"
+                                stroke-linecap="square"></path></svg></span></div>
+                    </div>
+                </div>
+                <div id="overlay" v-show="noResult">
+                    <div class="container"><h3 class="page-heading">No results found for<span
+                            class="st-colored-text"> '{{ truncateString(query, 18) }}'</span>. Look
+                        for
+                        other items in
+                        our store</h3>
+                        <div class="search-pform"><p><span v-show="isFilterSelected">Try <span
+                                class="no-result-filter"
+                                v-on:click="removeAllFilters()">clearing</span> some filters</span>
+                            or try searching some other keywords
+                        </p></div>
+                    </div>
+                    <div data-section-id="1601288121041" data-section-type="collection-list-section">
+                        <div>
+                            <div class="container-fluid collection-list"><h2 class="text-center text-uppercase">
+                                Checkout some of our other products
+                            </h2>
+                                <div>
+                                    <div class="st-row st-cols-2 st-cols-sm-2 st-cols-md-3 st-cols-lg-3 st-product-wrapper">
+                                        <div class="st-product-wrap" v-for="product in bestSellerResults"
+                                             v-bind:key="product.id">
+                                            <div class="st-product" @click="recordProductView(product.title)">
+                                                <figure class="st-product-media">
+                                                    <a v-bind:href="getProductUrl(product.handle)">
+                                                        <img v-bind:src="imageModifier(product.image)"
+                                                             v-bind:title="product.title">
+                                                        <img v-bind:src="imageModifier(product.images[1])"
+                                                             v-bind:title="product.title">
+                                                    </a>
+                                                    <div class="st-product-label-group" style="display: none;">
+                                                        <label class="st-product-label label-new">Save 25%</label>
+                                                    </div>
+
+                                                </figure>
+                                                <div class="st-product-details">
+                                                    <div class="st-product-cat" v-if="product.vendor">
+                                                        <h6 href="">{{ product.vendor }}</h6>
+                                                    </div>
+                                                    <div class="st-product-name" v-if="product.handle">
+                                                        <a v-bind:href="getProductUrl(product.handle)">{{
+                                                                product.title
+                                                            }}</a>
+                                                    </div>
+<!--                                                    <div class="st-product-form st-product-size" v-if="product.size">-->
+<!--                                                        <div class="st-product-form-group">-->
+<!--                                                            <div class="st-product-variations">-->
+<!--                                                                <ul class="st-product-grid-options-size">-->
+<!--                                                                    <li v-for="index in product.size.slice(0, 4)">-->
+<!--                                                                        <a class="size"-->
+<!--                                                                           v-bind:href="getProductUrl(product.handle)">{{-->
+<!--                                                                                index-->
+<!--                                                                            }}</a>-->
+<!--                                                                    </li>-->
+<!--                                                                    <li v-if="product.size.length > 4">-->
+<!--                                                                        <a class="size"-->
+<!--                                                                           v-bind:href="getProductUrl(product.handle)">+{{-->
+<!--                                                                                product.size.length - 4-->
+<!--                                                                            }}</a>-->
+<!--                                                                    </li>-->
+<!--                                                                </ul>-->
+<!--                                                            </div>-->
+<!--                                                        </div>-->
+<!--                                                    </div>-->
+                                                    <div class="st-product-price">
+                                                <span class="new-price" v-if="product.discounted_price"
+                                                      v-bind:class="{'only-price': product.discounted_price === product.price }">{{
+                                                        currency
+                                                    }}{{
+                                                        priceModifier(product.discounted_price)
+                                                    }}</span><span class="old-price"
+                                                                   v-if="product.discounted_price !== product.price">{{
+                                                            currency
+                                                        }} {{
+                                                            priceModifier(product.price)
+                                                        }}</span><span class="st-save"
+                                                                       style="display: none;"></span>
+                                                    </div>
+                                                    <div class="st-product-action" style="display: none;">
+                                                        <a class="st-btn-product">View This Product</a>
+                                                    </div>
+                                                </div>
+<!--                                                <span style="color:#fff;background:red;padding: 2px;letter-spacing : 0.5px;font-weight: 400;font-size: 11px;position: absolute;top: 0px;right: 0px;"-->
+<!--                                                      v-if="product.discounted_price !== product.price">Save {{-->
+<!--                                                        product.discount-->
+<!--                                                    }}%</span>-->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="overlay1" v-show="hasErrorEncountered">
+                    <div class="container"><h2>Oops!!! Something Went Wrong</h2>
+                        <p>Please, try <a onclick="location.reload()" class="highlight-text">reloading</a>
+                            page
+                            or go back
+                            to <a v-bind:href="baseURL" class="highlight-text">Home</a> page</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endraw %}
+
+<!-- End of SearchTap -->
+

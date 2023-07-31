@@ -1,0 +1,191 @@
+:root {
+  --site-widget-primary-color: #000000;
+  --site-widget-toggler-width: 52px;
+  --site-widget-toggler-z-index: 1060;
+  --site-widget-toggler-margin: 0px 0px 22px 22px;
+}
+
+#siteWidgetTogglerBtn {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: var(--site-widget-toggler-width);
+  height: var(--site-widget-toggler-width);
+  border-radius: 50%;
+  color: #fff;
+  background-color: var(--site-widget-primary-color);
+  font-size: 0px;
+  font-weight: 700;
+  z-index: var(--site-widget-toggler-z-index);
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 10px 15px 15px -10px rgba(0,0,0,0.75);
+  margin: var(--site-widget-toggler-margin);
+}
+#siteWidgetTogglerBtn.bottom-right {
+  bottom: 0;
+  right: 0;
+}
+#siteWidgetTogglerBtn.bottom-left {
+  bottom: 0;
+  left: 0;
+}
+#siteWidgetTogglerBtn.middle-right {
+  top: calc(50% - (var(--site-widget-toggler-width) / 2));
+  right: 0;
+}
+#siteWidgetTogglerBtn.middle-left {
+  top: calc(50% - (var(--site-widget-toggler-width) / 2));
+  left: 0;
+}
+#siteWidgetTogglerBtn.top-right {
+  top: 0;
+  right: 0;
+}
+#siteWidgetTogglerBtn.top-left {
+  top: 0;
+  left: 0;
+}
+#siteWidgetTogglerBtn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 150%;
+  width: 200%;
+  height: 100%;
+  transform: skew(-20deg);
+  background-image: linear-gradient(90deg,transparent,hsla(0,0%,100%,.25),transparent);
+  box-shadow: unset!important;
+}
+#siteWidgetTogglerBtn:not(:disabled):hover::before {
+  animation: shine .75s cubic-bezier(.01,.56,1,1);
+}
+
+.site-widget-loader {
+  position: absolute;
+  display: block!important;
+  width: 28px;
+  height: 28px;
+  left: 50%;
+  top: 50%;
+  border: 3px solid var(--site-widget-primary-color);
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: loader-anim .7s linear infinite;
+}
+
+.site-widget-container {
+  font-family: 'Public Sans'!important;
+  font-style: normal!important;
+  opacity: 0;
+  visibility: hidden;
+  position: fixed;
+  height: calc(100% - 170px);
+  width: 30%;
+  min-width: 400px;
+  max-width: 420px;
+  max-height: 720px;
+  background: #fff;
+  overflow: hidden;
+  z-index: var(--site-widget-toggler-z-index);
+  transition: opacity .25s ease;
+  box-shadow: 0px 10px 30px 0px rgba(0,0,0,0.75);
+  border-radius: 24px;
+}
+.site-widget-modal-state {
+  display: none!important;
+}
+.site-widget-modal-state:checked + .site-widget-container {
+  opacity: 1;
+  visibility: visible;
+}
+
+.site-widget-container.bottom-right {
+  bottom: calc(var(--site-widget-toggler-width) + 15px);
+  right: 0;
+  margin: var(--site-widget-toggler-margin);
+}
+.site-widget-container.bottom-left {
+  bottom: calc(var(--site-widget-toggler-width) + 15px);
+  left: 0;
+  margin: var(--site-widget-toggler-margin);
+}
+.site-widget-container.middle-right {
+  top: 50%;
+  right: calc(var(--site-widget-toggler-width) + 15px);
+  margin: var(--site-widget-toggler-margin);
+  transform: translateY(-50%)!important;
+}
+.site-widget-container.middle-left {
+  top: 50%;
+  left: calc(var(--site-widget-toggler-width) + 15px);
+  margin: var(--site-widget-toggler-margin);
+  transform: translateY(-50%)!important;
+}
+.site-widget-container.top-right {
+  top: calc(var(--site-widget-toggler-width) + 15px);
+  right: 0;
+  margin: var(--site-widget-toggler-margin);
+}
+.site-widget-container.top-left {
+  top: calc(var(--site-widget-toggler-width) + 15px);
+  left: 0;
+  margin: var(--site-widget-toggler-margin);
+}
+
+.site-widget-container .close-btn {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #fff;
+  font-size: 1rem;
+  font-weight: 300;
+  cursor: pointer;
+  right: 16px;
+  top: 16px;
+  opacity: 0.6;
+}
+.site-widget-container .close-btn:hover {
+  opacity: 0.75;
+}
+
+.site-widget-container iframe {
+  width: 100%;
+  height: 100%;
+  border: unset;
+}
+
+@media screen and (max-width: 768px) {
+  .site-widget-container {
+    border-radius: 0;
+    position: fixed;
+    top: 0!important;
+    left: 0!important;
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
+    min-height: 100%;
+    max-height: unset;
+    margin: unset!important;
+  }
+}
+
+@keyframes loader-anim {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes shine{
+  to{
+    left:-200%;
+  }
+}
+

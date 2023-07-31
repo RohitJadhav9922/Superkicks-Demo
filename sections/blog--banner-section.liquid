@@ -1,0 +1,235 @@
+<section id="{{ settings.section_id | handle }}" class="section-{{ section.id }} blog__banner-section">
+  <div class="banner__wrapper">   
+    <div class="banner__media mobile-hide blog-banner__media--{{ section.settings.height }} {% if section.settings.image != blank %}media{% else %}image-with-text__media--placeholder placeholder{% endif %}"
+      {% if section.settings.height == 'adapt' and section.settings.image != blank %} style="padding-bottom: 60%"{% endif %}
+    >
+      {%- if section.settings.image != blank -%}
+        {%- capture sizes -%}(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | divided_by: 2 }}px, (min-width: 750px) calc((100vw - 130px) / 2), calc((100vw - 50px) / 2){%- endcapture -%}
+      <div class="article__blog--container"> 
+        <a href=" " class="article_url"></a>
+         <div class="article__blog--image">
+             <img src="" class= "blog_image" />
+         </div>
+         <div class="article__blog--title" >     
+            <h1 class="title_of--blog" style=color:white;></h1>
+         </div> 
+      </div>
+      {%- endif -%}
+    </div>
+    <div class="media media--portrait desktop-hide tablet-hide">
+       {%- if section.settings.mobile_image != blank -%}
+        <img src="" class= "blog_image-mobile" >
+        <div class="article__blog--container"> 
+         <a href="#" class="article_url-mobile">
+         <div class="article__blog--title" >     
+            <h1 class="title_of--blog-mobile" style=color:white;></h1>
+         </div> 
+         </a>
+      </div>
+      {% endif %}
+    </div>
+  
+    <div class="blog__content">
+      <div class="blog__breadcrumbs">
+        {% assign t = template | split: '.' | first  %}
+        <nav class="breadcrumbs" aria-label="breadcrumbs">
+          <ul>
+            <li>
+              <a href="/" title="Home">Home / </a>
+            </li>
+        
+            {% case t %}
+              {% when 'page' %}
+                <li>
+                  <a href="{{ page.url }}" aria-current="page">{{ page.title }}</a>
+                </li>
+              {% else %}
+                <li aria-current="page">
+                  <a href="{{ request.path }}" aria-current="page">{{ page_title }}</a>
+                </li>
+            {% endcase %}
+          </ul>
+        </nav>
+      </div>
+    
+      {% if section.settings.heading != blank %}
+        <div class="blog-heading">
+          <h2>{{ section.settings.heading }}</h2>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="featured-article__wrapper">
+      <div class="blog__banner-featured-articles carousel">
+        {%- for article in blog.articles limit: 3 -%}
+          <div class="featured-article-card" data-url="{{ article.url }}">
+            <div class="media media--16-9 ">
+              <img src="{{ article.image.src | image_url: width: 225 }}">
+            </div>
+            <div class="article-title">
+              <h4>{{ article.title }}</h4>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section-{{ section.id }} {
+    background-color: {{ section.settings.background_color_mobile }};
+    padding-top: {{ section.settings.padding_top_mobile }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+  }
+  .mobile-hide {
+      display: none;
+  }
+
+  @media(min-width:750px){
+    .section-{{ section.id }} {
+      background-color: {{ section.settings.background_color_desktop }};
+      padding-top: {{ section.settings.padding_top_desktop }}px;
+      padding-bottom: {{ section.settings.padding_bottom_desktop }}px;
+    }
+    .desktop-hide {
+      display: none;
+    }
+    .mobile-hide {
+      display: block;
+    }
+  }
+  
+  .banner__media::after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: {{ section.settings.image_overlay_opacity | divided_by: 100.0 }};
+  }
+
+  .carousel:after {
+    content: 'flickity';
+    display: none;
+  }
+  
+  @media screen and ( min-width: 768px ) {
+    /* disable Flickity for large devices */
+    .carousel:after {
+      content: '';
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Blog Banner Section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "BLOGS",
+      "label": "Heading"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Blog Banner Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Blog Banner Image (Mobile)"
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.image-with-text.settings.height.options__1.label"
+        },
+        {
+          "value": "small",
+          "label": "t:sections.image-with-text.settings.height.options__2.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.image-with-text.settings.height.options__3.label"
+        }
+      ],
+      "default": "adapt",
+      "label": "t:sections.image-with-text.settings.height.label"
+    },
+    {
+      "type": "range",
+      "id": "image_overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "label": "t:sections.slideshow.blocks.slide.settings.image_overlay_opacity.label",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top (Desktop)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom (Desktop)",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Mobile - Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top (Mobile)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom (Mobile)",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Blog Banner Section"
+    }
+  ]
+}
+{% endschema %}

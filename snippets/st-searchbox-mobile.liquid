@@ -1,0 +1,57 @@
+<style>
+  @media only screen and (max-width: 834px){
+    .st-hidden-sm {
+        display: none !important;
+    }
+
+    .st-hidden-desktop {
+        display: block;
+    }
+    .st-search-bar.st-hidden-desktop {
+    margin: 10px 17px 0;
+    position: relative;
+    padding-bottom: 5px;
+}
+    .st-search-bar input {
+    width: 100% !important;
+    min-width: 180px !important;
+}
+    .st-search-bar input {
+    height: 40px!important;
+    margin-bottom: 0;
+    background-position-x: 15px!important;
+    padding-left: 40px!important;
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position-y: center;
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIuOTA0IDE5Mi45MDQiPjxwYXRoIGQ9Ik0xOTAuNzA3IDE4MC4xMDFsLTQ3LjA3OC00Ny4wNzdjMTEuNzAyLTE0LjA3MiAxOC43NTItMzIuMTQyIDE4Ljc1Mi01MS44MzFDMTYyLjM4MSAzNi40MjMgMTI1Ljk1OSAwIDgxLjE5MSAwIDM2LjQyMiAwIDAgMzYuNDIzIDAgODEuMTkzYzAgNDQuNzY3IDM2LjQyMiA4MS4xODcgODEuMTkxIDgxLjE4NyAxOS42ODggMCAzNy43NTktNy4wNDkgNTEuODMxLTE4Ljc1MWw0Ny4wNzkgNDcuMDc4YTcuNDc0IDcuNDc0IDAgMDA1LjMwMyAyLjE5NyA3LjQ5OCA3LjQ5OCAwIDAwNS4zMDMtMTIuODAzek0xNSA4MS4xOTNDMTUgNDQuNjk0IDQ0LjY5MyAxNSA4MS4xOTEgMTVjMzYuNDk3IDAgNjYuMTg5IDI5LjY5NCA2Ni4xODkgNjYuMTkzIDAgMzYuNDk2LTI5LjY5MiA2Ni4xODctNjYuMTg5IDY2LjE4N0M0NC42OTMgMTQ3LjM4IDE1IDExNy42ODkgMTUgODEuMTkzeiIvPjwvc3ZnPg==)!important;
+    font-size: 16px!important;
+}
+    .st-search-bar svg.st-cross {
+    top: 10px;
+}
+    .st-trending-box {
+    margin-right: 0;
+    margin-top: 0;
+    left: 0;
+    right: 0;
+    max-width: 100%;
+}
+    .st-trending-box #st-before-search {
+    padding: 15px 15px 20px !important;
+}
+    .st-trending-box .st-autocomplete-component-header, .st-trending-box .st-trending-header {
+    text-transform: capitalize;
+}
+   
+  }
+</style>
+<div class="st-search-bar st-hidden-desktop" id="st-searchbox-mobile" style="display: none;">
+                <input type="text" name="q" placeholder="Search..." value="" autocapitalize="off" autocomplete="off" autocorrect="off">
+                <svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"
+                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="st-cross"
+                     style="display: none;">
+                    <path d="m12 10.93 5.719-5.72c.146-.146.339-.219.531-.219.404 0 .75.324.75.749 0 .193-.073.385-.219.532l-5.72 5.719 5.719 5.719c.147.147.22.339.22.531 0 .427-.349.75-.75.75-.192 0-.385-.073-.531-.219l-5.719-5.719-5.719 5.719c-.146.146-.339.219-.531.219-.401 0-.75-.323-.75-.75 0-.192.073-.384.22-.531l5.719-5.719-5.72-5.719c-.146-.147-.219-.339-.219-.532 0-.425.346-.749.75-.749.192 0 .385.073.531.219z"></path>
+                </svg>
+          {%- render 'st-trending-searches' -%}                  
+            </div>

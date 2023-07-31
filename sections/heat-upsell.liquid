@@ -1,0 +1,70 @@
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+
+{%- assign upsell_handles = '' -%}
+{%- for tag in product.tags -%}
+  {%- if tag contains 'heat__' -%}
+	{%- assign u_handle = tag | split: '__' | last -%}
+	{%- assign upsell_handles = upsell_handles | append: u_handle | append: ',' -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- assign upsell_handles = upsell_handles | split: ',' | uniq -%}
+
+{%- if section.settings.enable_product_upselling and upsell_handles.size > 0 -%}
+  <div class="page-width">
+	{%- if section.settings.title != blank -%}
+      <div class="title-wrapper">
+        <h2>{{ section.settings.title }}</h2>
+      </div>
+    {%- endif -%}
+    
+    <div class="grid grid--2-col grid--3-col-tablet grid--4-col-desktop">
+      {%- for handle in upsell_handles -%}
+      	{%- assign product = all_products[handle] -%}
+      	<div class="grid__item">
+          {% render 'card-product',
+              card_product: product,
+              media_aspect_ratio: portrait,
+              show_secondary_image: true,
+              show_vendor: true,
+              show_rating: false,
+              lazy_load: true,
+              show_quick_add: false,
+              section_id: section.id
+            %}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+{%- endif -%}
+
+
+{% schema %}
+  {
+    "name": "Heat Upsell Section",
+	"tag": "section",
+    "class": "section",
+    "settings": [
+	  {
+        "type": "paragraph",
+        "content": "Add heat__{ product-handle } tag to your products to show the upsell items."
+      },
+	  {
+        "type": "checkbox",
+        "id": "enable_product_upselling",
+        "label": "Show upsell products",
+        "default": true
+      },	  
+	  {
+        "type": "text",
+        "id": "title",
+        "label": "Heading",
+        "default": "Upsell Products"
+      }
+	],
+    "presets":[
+      {
+        "name":"Heat Upsell Section"
+      }
+    ]
+  }
+{% endschema %}

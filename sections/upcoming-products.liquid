@@ -1,0 +1,146 @@
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+
+<div class="upcoming-products-container page-width">
+  {% if section.settings.heading != blank %}
+    <div class="upcoming-products-heading">{{ section.settings.heading }}</div>
+  {% endif %}
+  <div class="upcoming_product-container {{ section.settings.heading | handleize }}  carousel--3-col">
+    {% for product in section.settings.sepcial-collection.products %}
+      {% for tag in product.tags %}
+        {% if tag contains "Startdate__" %}
+          {% assign now = "now" | date: "%s" | times:1 %}
+          {% assign startDate = tag | split: "Startdate__" | last | date: "%s" | times:1 %}
+          {% assign productstartDate = tag | split: "Startdate__" | last  %}
+        {% endif %}
+        {% if tag contains "Enddate__" %}
+          {% assign endDate = tag | split: "Enddate__" | last | date: "%s" | times:1 %}
+          {% assign productendDate = tag | split: "Enddate__" | last %}
+        {% endif %}
+      {% endfor %}
+      {% if startDate != blank and endDate != blank %}
+        {% if now < startDate %}
+          <div class="product--card product--card-container grid__item " data-sort="{{ startDate }}" data-startDate="{{ productstartDate }}" data-endDate="{{ productendDate }}">
+            {% render 'card-product',
+              card_product: product,
+              media_aspect_ratio: 'portrait',
+              show_secondary_image: true,
+              show_vendor: true,
+              section_id: section.id,
+              enable_date: true
+            %}
+          </div>
+      {% endif %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+
+<script>
+
+window.addEventListener("DOMContentLoaded",function(){
+
+  //sorting the upcoming product based on start date
+  let card =document.querySelectorAll("[data-sort]");
+  var array = [];
+  card.forEach((productCard)=>{
+      array.push(productCard.getAttribute("data-sort"));
+  });
+  let sortedValue = array.sort();
+  let sortedProductCard = [];
+  sortedValue.forEach((value)=>{
+      document.querySelector(".upcoming-drops").append(document.querySelector(`[data-sort="${value}"]`));
+      sortedProductCard.push(document.querySelector(`[data-sort="${value}"]`));
+  });
+
+  //for future products
+  let futureContainer = document.querySelector(".{{ section.settings.heading | handleize }}");
+  let futureproductCard = futureContainer.querySelectorAll(".product--card");
+  
+  futureproductCard.forEach(card => {
+    let startDate = card.getAttribute("data-startDate");
+    let EndDate = card.getAttribute("data-endDate");
+    let month = startDate.toString().split(' ')[1];
+    let date = new Date(startDate).getDate();
+    if(card.querySelector('.release-date')){
+      card.querySelector(".release-date").style.display = "flex";
+      card.querySelector('.first-tag').innerHTML = month;
+      card.querySelector('.second-tag').innerHTML = date;
+    }
+  })
+  
+  function makeTimer(parsedCard,enddate) { 
+      var saleEndTime = (Date.parse(enddate) / 1000);
+      var now = new Date();
+      now = (Date.parse(now) / 1000);           
+      var timeLeft = saleEndTime - now;
+      if(timeLeft > 0){
+        var days = Math.floor(timeLeft / 86400); 
+        var hours = Math.floor((timeLeft - (days * 86400)) / 3600);
+        var minutes = Math.floor((timeLeft - (days * 86400) - (hours * 3600 )) / 60);
+        var seconds = Math.floor((timeLeft - (days * 86400) - (hours * 3600) - (minutes * 60)));
+        if(parsedCard.querySelector(".js-sale-days")){
+          parsedCard.querySelector(".js-sale-days").innerHTML = days + 'd';
+          parsedCard.querySelector(".js-sale-hours").innerHTML = hours + 'h';
+          parsedCard.querySelector(".js-sale-minutes").innerHTML = minutes + 'm';
+          parsedCard.querySelector(".js-sale-secs").innerHTML = seconds + 's';
+        }
+      } else {
+    
+        parsedCard.querySelector('.product__sale-timer').style.display = "none";
+        parsedCard.querySelector('.release-date').style.display = "flex";
+      }
+  }
+  
+});
+ 
+function applyflickity(){
+  let flickityContainer = document.querySelector('.upcoming-drops');
+  let cardCount = flickityContainer.querySelectorAll(".product--card").length;
+  if(cardCount > 3){
+    let flkty = new Flickity( '.upcoming_product-container',{cellAlign: 'center',contain: true, groupCells: 1 ,pageDots: false,arrowShape: { 
+          x0: 20,
+          x1: 55, y1: 40,
+          x2: 60, y2: 35,
+          x3: 30
+        }});
+  } 
+  else {
+    flickityContainer.style.display = "flex";
+    flickityContainer.style.overflow = "scroll";
+  }
+}
+setTimeout(function(){
+  applyflickity();
+},1000);
+</script>
+
+
+
+
+
+
+{% schema %}
+{
+  "name": "Upcoming Products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Upcoming drops ",
+      "default": "UPCOMING DROPS"
+    },
+    {
+      "type":"collection",
+      "id":"sepcial-collection",
+      "label":"Collection"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Upcoming Products"
+    }
+  ]
+}
+{% endschema %}

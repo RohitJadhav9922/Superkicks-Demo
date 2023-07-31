@@ -1,0 +1,34 @@
+<single-logo class="single-logo--container page-width">
+  <div class="single-logo--wrapper">
+    {% if section.settings.logo != blank %}
+    <img src="{{ section.settings.logo | img_url: 'logo' }}">
+    {% else %}
+      {{ 'image' | placeholder_svg_tag | logo }}
+    {% endif %}
+  </div>
+</single-logo>
+
+{% schema %}
+  {
+    "name": "Single logo",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo",
+        "info": "90px x 90px (1:1) recommended"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Single logo"
+      }
+    ]
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}

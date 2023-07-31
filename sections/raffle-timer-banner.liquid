@@ -1,0 +1,272 @@
+<div class="timer-banner--main-container">
+  {% assign beforSaletext = section.settings.before--timer-text %}
+  {% assign afterSaletext = section.settings.after--timer-text %}
+  {% for block in section.blocks %}
+    <div class="timer-banner-container timer-banner-container-{{ block.id }}">
+      <div class="page-width">{% render 'breadcrumbs' %}</div>
+      <a href="{{ block.settings.product-url }}" class="product--url page-width">
+        <div class="timer-banner-contents page-width">
+          {% if block.settings.product-status %}
+            <span class="product-status">{{ block.settings.product-status }}</span>
+          {% endif %}
+          {% if block.settings.product-name %}
+            <span class="product-name">{{ block.settings.product-name }}</span>
+          {% endif %}
+          {% if block.settings.product-description %}
+            <span class="product-description">{{ block.settings.product-description }}</span>
+          {% endif %}
+  
+          {% if block.settings.sale_timer_enable %}
+              <div class="product-timer">
+                <div class="sale--containers before-sale-container-{{block.id}}">
+                  <span class="block-title-{{block.id}} before--text">{{ beforSaletext }}:</span>
+                  <div class="product__sale-timer">
+                    <div class="product__sale-timer-block">
+                      <span class="js-sale-start-days-{{block.id}}"></span>
+                      <span class="product__sale-block-name-{{block.id}}">d :</span>
+                    </div>
+                    <div class="">
+                      <span class="js-sale-start-hours-{{block.id}}"></span>
+                      <span class="product__sale-block-name-{{block.id}}">h :</span>
+                    </div>
+                    <div class="">
+                      <span class="js-sale-start-minutes-{{block.id}}"></span>
+                      <span class="product__sale-block-name-{{block.id}}">m :</span>
+                    </div>
+                    <div class="">
+                      <span class="js-sale-start-secs-{{block.id}}"></span>
+                      <span class="product__sale-block-name-{{block.id}}">s</span>
+                    </div>
+                  </div>               
+                  
+                </div>
+                
+                <div class="sale--containers during-sale-container-{{block.id}}">
+                  
+                  <span class="block-title-{{block.id}} after--text">{{ afterSaletext }}:</span>
+                  
+                  <div class="product__sale-timer">
+                    <div class="product__sale-timer-block">
+                      <span class="js-sale-end-days-{{block.id}}"></span>
+                      <span class="product__sale-block-name-{{block.id}}">d :</span>
+                    </div>
+                    <div class="product__sale-timer-block">
+                      <span class="js-sale-end-hours-{{block.id}}"></span>
+                      <span class="product__sale-block-name-{{block.id}}">h :</span>
+                    </div>
+                    <div class="product__sale-timer-block">
+                      <span class="js-sale-end-minutes-{{block.id}}"></span>
+                      <span class="product__sale-block-name-{{block.id}}">m :</span>
+                    </div>
+                    <div class="product__sale-timer-block">
+                      <span class="js-sale-end-secs-{{block.id}}"></span>
+                      <span class="product__sale-block-name-{{block.id}}">s</span>
+                    </div>
+                  </div> 
+                </div>
+              </div>
+              {% endif %}
+        </div>
+        <div class="timer-banner-image">
+          <img class="timer-banner-img" src="{{ block.settings.product-image | img_url: 'master' }}"/>
+        </div>
+      </a>
+    </div>
+  {% endfor %}
+</div>
+<style>
+  {% for block in section.blocks %}
+  .timer-banner-container-{{ block.id }}{
+    background: {{ block.settings.background_color }};
+    padding-top: 1px;
+    padding-bottom: 60px;
+    width: 100%;
+  }
+  @media(max-width:990px){
+    .timer-banner-container-{{ block.id }}{
+      padding-bottom: 10rem;
+    }
+  }
+  {% endfor %}
+  
+</style>
+<script>
+  
+window.addEventListener('DOMContentLoaded', (event) => {
+var elem = document.querySelector('.timer-banner--main-container');
+  var flkty = new Flickity( elem, {
+    // options
+    cellAlign: 'center',
+    contain: true,
+    wrapAround: true,
+    fullscreen: true,
+    arrowShape: { 
+      x0: 20,
+      x1: 55, y1: 40,
+      x2: 60, y2: 35,
+      x3: 30
+    },
+    imagesLoaded: true
+  });
+});
+  
+// timer code goes here
+{% for block in section.blocks %}
+window.addEventListener('DOMContentLoaded', (event) => {
+  function makeTimer() {
+
+    var saleStartTime = new Date('{{ block.settings.sale_start_date }} GMT+0530');	
+    saleStartTime = (Date.parse(saleStartTime) / 1000);
+    
+    var saleEndTime = new Date('{{ block.settings.sale_end_date }} GMT+0530');			
+    saleEndTime = (Date.parse(saleEndTime) / 1000);
+
+    var now = new Date();
+    now = (Date.parse(now) / 1000);
+
+    if(now > saleStartTime){
+      var timeLeft = saleEndTime - now;
+      if(timeLeft >= 0){
+        var days = Math.floor(timeLeft / 86400); 
+        var hours = Math.floor((timeLeft - (days * 86400)) / 3600);
+        var minutes = Math.floor((timeLeft - (days * 86400) - (hours * 3600 )) / 60);
+        var seconds = Math.floor((timeLeft - (days * 86400) - (hours * 3600) - (minutes * 60)));
+
+        if (days < "10") { days = "0" + days; }
+        if (hours < "10") { hours = "0" + hours; }
+        if (minutes < "10") { minutes = "0" + minutes; }
+        if (seconds < "10") { seconds = "0" + seconds; }
+
+        document.querySelector(".js-sale-end-days-{{block.id}}").innerHTML = days;
+        document.querySelector(".js-sale-end-hours-{{block.id}}").innerHTML = hours;
+        document.querySelector(".js-sale-end-minutes-{{block.id}}").innerHTML = minutes;
+        document.querySelector(".js-sale-end-secs-{{block.id}}").innerHTML = seconds;
+        
+        document.querySelector('.before-sale-container-{{block.id}}').style.display = 'none';
+        document.querySelector('.during-sale-container-{{block.id}}').style.display = 'flex';
+      } else {
+          document.querySelector('.before-sale-container-{{block.id}}').style.display = 'none';
+          document.querySelector('.during-sale-container-{{block.id}}').style.display = 'none';
+      }
+    }
+    
+    if(now < saleStartTime){
+      var timeLeft = saleStartTime - now;
+      if(timeLeft >= 0){
+        var days = Math.floor(timeLeft / 86400); 
+        var hours = Math.floor((timeLeft - (days * 86400)) / 3600);
+        var minutes = Math.floor((timeLeft - (days * 86400) - (hours * 3600 )) / 60);
+        var seconds = Math.floor((timeLeft - (days * 86400) - (hours * 3600) - (minutes * 60)));
+
+        if (hours < "10") { hours = "0" + hours; }
+        if (minutes < "10") { minutes = "0" + minutes; }
+        if (seconds < "10") { seconds = "0" + seconds; }
+
+        document.querySelector(".js-sale-start-days-{{block.id}}").innerHTML = days;
+        document.querySelector(".js-sale-start-hours-{{block.id}}").innerHTML = hours;
+        document.querySelector(".js-sale-start-minutes-{{block.id}}").innerHTML = minutes;
+        document.querySelector(".js-sale-start-secs-{{block.id}}").innerHTML = seconds;
+        
+        document.querySelector('.before-sale-container-{{block.id}}').style.display = 'flex';
+        document.querySelector('.during-sale-container-{{block.id}}').style.display = 'none';
+      } else {
+          document.querySelector('.before-sale-container-{{block.id}}').style.display = 'none';
+          document.querySelector('.during-sale-container-{{block.id}}').style.display = 'none';
+      }
+    }
+  }
+
+  setInterval(function() { makeTimer(); }, 1000);
+});
+{% endfor %}
+</script>
+{% schema %}
+ {
+   "name":"Timer Banner",
+   "settings":[
+      {
+         "type":"text",
+         "id":"before--timer-text",
+         "label":"Before Sale start",
+         "default":"Raffle Starts In"
+      },
+      {
+         "type":"text",
+         "id":"after--timer-text",
+         "label":"After Sale start",
+         "default":"Raffle Ends in"
+      }
+   ],
+   "blocks":[
+      {
+         "type":"Banner",
+         "name":"Banner",
+         "settings":[
+            {
+              "type": "color",
+              "id": "background_color",
+              "label": "Background Color",
+              "default": "#000000"
+            },
+            {
+               "type":"image_picker",
+               "id":"product-image",
+               "label":"Image"
+            },
+            {
+               "type":"url",
+               "id":"product-url",
+               "label":"Product link"
+            },
+            {
+               "type":"text",
+               "id":"product-status",
+               "label":"Product Status",
+               "default":"Live Now"
+            },
+            {
+               "type":"richtext",
+               "id":"product-name",
+               "label":"Product Name"
+            },
+            {
+               "type":"richtext",
+               "id":"product-description",
+               "label":"Product Description"
+            },
+            {
+               "type":"checkbox",
+               "id":"sale_timer_enable",
+               "label":"Enable Sale Timer",
+               "default":true
+            },
+            {
+               "type":"header",
+               "content":"Before Sale Start"
+            },
+            {
+               "type":"text",
+               "id":"sale_start_date",
+               "label":"Sale Start Date",
+               "info":"Please add Time in this format(20 January 2022 20:37:25)"
+            },
+            {
+               "type":"header",
+               "content":"After Sale Start"
+            },
+            {
+               "type":"text",
+               "id":"sale_end_date",
+               "label":"Sale End Date",
+               "info":"Please add Time in this format(20 January 2022 20:37:25)"
+            }
+         ]
+      }
+   ],
+   "presets":[
+      {
+         "name":"Timer Banner"
+      }
+   ]
+}
+{% endschema %}

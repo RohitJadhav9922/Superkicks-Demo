@@ -1,0 +1,40 @@
+<div class="{% if section.settings.include_margins %}page-width{% endif %}">
+  {%- if section.settings.title != blank -%}
+    <h2 class="title">{{ section.settings.title | escape }}</h2>
+  {%- endif -%}
+  {%- for block in section.blocks -%}
+    {% render block %}
+  {%- endfor -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.apps.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "include_margins",
+      "default": true,
+      "label": "t:sections.apps.settings.include_margins.label"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "default": "Our Instagram",
+      "label": "Heading"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.apps.presets.name"
+    }
+  ]
+}
+{% endschema %}

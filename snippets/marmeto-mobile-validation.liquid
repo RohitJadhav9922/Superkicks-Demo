@@ -1,0 +1,124 @@
+<style>
+  .phone-error, .address-error {
+    display: none;
+    color: red;
+    padding-top: 10px;
+  }
+  .field[data-address-field="address1"] .field--error{
+    border-color: #e22120;
+    -webkit-box-shadow: 0 0 0 1px #e22120;
+    box-shadow: 0 0 0 1px #e22120;
+  }
+</style>
+
+<script type="text/javascript" author="Marmeto">  
+  //Function to allow only numbers
+  function _isNumberCheck(evt) {
+    var charCode = (evt.which) ? evt.which : event.keyCode;
+    let len = evt.target.value.replace(/\s/g,"").length + 1;
+//     console.log(evt.target.value.replace(/\s/g,""));
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+      return false;
+    if (len>10)
+      return false;
+    return true;
+  }
+
+  //Function to check if adress field has more than 15 char
+  function checkAddress(addressField) {
+    if(addressField.value.length > 15){
+      return true
+    } else {
+      addressField.classList.add("field--error");
+      $('.address-error').show();
+      return false;
+    }
+  }
+
+  //Function to validate phone number
+  function _isNumberDigit($input){
+    var $countryInputValue = $('[data-address-field="country"] select').val();
+
+    if ($countryInputValue == "India") {
+      var $inputNumber = $input.val(),
+          $trimNumber = $inputNumber.replace(/ /g, '');
+
+      $input.val($trimNumber);
+		console.log($input, "input")
+      if($input.val().length == 10){
+        if ($trimNumber.match(/^[6-9]\d{9}$/)) {
+          $('.phone-error').hide();
+          return true;
+        }
+        else {
+          $('[data-address-field="phone"]').addClass("field--error");
+          $('.phone-error').show();
+          if ($('#error-for-phone').length > 0 ){$('.phone-error').hide();}
+          return false;
+        }
+      }
+      else {
+        if($input.attr('id') == "checkout_shipping_address_phone" || $input.attr('id') == "checkout_billing_address_phone"){
+          $('[data-address-field="phone"]' ).addClass( "field--error" );
+          $('.phone-error').show();
+          if ($('#error-for-phone').length > 0 ){$('.phone-error').hide();}
+        }
+        if($input.attr('id') == "checkout_shipping_address_alternative-phone"){
+          $('#checkout_shipping_address_alternative-phone').css({'border-color': '#e22120', '-webkit-box-shadow': '0 0 0 1px #e22120', 'box-shadow': '0 0 0 1px #e22120'})
+        }
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }
+  
+  $(document).ready(function(){
+    
+    //Append the message
+    $('.field[data-address-field="phone"]').append('<div><p class="phone-error">Please enter a 10 digit valid mobile number</p></div>');
+	$('.field[data-address-field="address1"]').append('<div><p class="address-error">Please add the complete address</p></div>');
+    
+    //Phone Field
+    var $phoneInput = $('.field[data-address-field="phone"] input'),
+        $contactForm = $('[data-step="contact_information"] > form');
+        $paymentForm = $('[data-step="payment_method"] > .step__sections > form');
+        const addressField = document.querySelector('[data-address-field="address1"] input');
+ 
+    //On keypress allow only number 
+    $phoneInput.keypress(function(event) {
+      return _isNumberCheck(event);
+    });
+
+    //On form submit validate number
+    $contactForm.on('submit', function(){
+      if(checkAddress(addressField) && _isNumberDigit($phoneInput)) return true
+      else return false;      
+    });
+
+    $paymentForm.on('submit', function(){      
+      if(!$('#section--billing-address__different').hasClass('hidden')){
+        if(checkAddress(addressField) && _isNumberDigit($phoneInput)) return true
+        else return false;  
+      }
+    });
+
+    //Input on click remove error message
+    $phoneInput.on('click', function() {
+      $('[data-address-field="phone"]').removeClass("field--error");
+      $('.phone-error').hide();
+    });
+
+    addressField.addEventListener('click', function() {
+      this.classList.remove("field--error");
+      $('.address-error').hide();
+    });
+    
+    // Prevent 0 as first character in phone number input field
+    $phoneInput.keyup(function(e) {
+      if (/^0/.test(this.value)) {
+        this.value = this.value.replace(/^0/, "")
+      }
+    });
+  });  
+</script>

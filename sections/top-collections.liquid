@@ -1,0 +1,122 @@
+{{ 'top-collections.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'top-collections.js' | asset_url }}" defer></script>
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="top__collection-section">
+  <div class="page-width{% if section.settings.heading == blank %} no-heading{% endif %} section-{{ section.id }}-padding">
+    {%- if section.settings.section_title != blank -%}
+      <h2 class="title">{{ section.settings.section_title | escape }}</h2>
+    {%- endif -%}
+
+    <div class="desktop_hide">
+      <div class="top_collection_list featured-collection">
+        <ul
+          class="product-grid js-product-grid flickity-enabled is-draggable"
+          role="list"
+          aria-label="Slider"
+          tabindex="0"
+        >
+          {% for block in section.blocks %}
+            <li class="collection__block product__list">
+              <a class="collection_image_link" href="{{ block.settings.button_link }}">
+                <img src="{{ block.settings.image | img_url: 'master' }}" alt="">
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="desktop_display">
+      <div class="top_collection_list featured-collection">
+        <ul
+          class="{% if section.blocks.size <= 4 %}d__flex{% endif %}{% if section.blocks.size > 4 %}product-grid js-product-grid flickity-enabled is-draggable{% endif %}"
+          role="list"
+          aria-label="Slider"
+          tabindex="0"
+        >
+          {% for block in section.blocks %}
+            <li class="collection__block product__list">
+              <a class="collection_image_link" href="{{ block.settings.button_link }}">
+                <img src="{{ block.settings.image | img_url: 'master' }}" alt="">
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Top Colection",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title"
+    },
+    {
+      "type": "header",
+      "content": "Sections Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "store",
+      "name": "Collection Block",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "recomended size 300x300"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Top Collection"
+    }
+  ]
+}
+{% endschema %}

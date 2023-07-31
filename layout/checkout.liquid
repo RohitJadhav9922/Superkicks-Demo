@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}" dir="{{ direction }}" class="{{ checkout_html_classes }}">
+
+  {% for line_item in checkout.line_items %}
+    {% if line_item.product.template_suffix == "fcfs-product-page" %} 
+      {% assign fcfs = true %}
+      {% assign line_item_property = line_item.properties['dataToken'] %}
+      {% assign line_item_property_payment_page = line_item.properties['dataToken2'] %}
+      {% assign product_id = line_item.product.id %}
+      {% assign variant_id = line_item.variant.id %}
+      {% assign line_item_url = line_item.product.url %}
+    {% endif %}
+  {% endfor %}
+
+  
+
+  
+  {% if page_title contains  "Payment" %}
+    {% assign token_line = line_item_property_payment_page %}
+  {% else %}
+    {% assign token_line = line_item_property %}
+  {% endif %}
+  
+  {% assign parts = token_line | split: "=" %}
+  {% assign date = parts.last | slice: -8, 8  %}
+  
+  {% assign last_six_numbers = parts.last | remove: date  | slice: -6, 6  %}
+  {% assign ip_address = parts.last | remove: date | remove: last_six_numbers | replace: '*', '.' %}
+  
+  {% capture combined_value %}{{ ip_address }},{{ variant_id }},{{ product_id }},{{ date }},{{ last_six_numbers }}{% endcapture %}
+  
+  {% if page_title contains  "Payment" %}
+    {% capture secret_key_value %}{{ combined_value | hmac_sha256: "Wing-gar-dium-Levi-o-sa" }}{% endcapture %}
+  {% else %}
+    {% capture secret_key_value %}{{ combined_value | hmac_sha256: "RepaRo" }}{% endcapture %}
+  {% endif %}
+
+  {% if fcfs == blank or secret_key_value == parts.first %}
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, user-scalable=0">
+      <meta name="referrer" content="origin">
+  
+      <title>{{ page_title }}</title>
+
+      {{ content_for_header }}
+  
+      {{ checkout_stylesheets }}
+    
+      {{ checkout_scripts }}
+      <script>  window.$ = Checkout.$;</script>
+  
+      <!-- Google tag (gtag.js) -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=AW-653268117"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+      
+        gtag('config', 'AW-653268117');
+      </script>
+  
+      <script type="text/javascript">
+          (function(c,l,a,r,i,t,y){
+              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+          })(window, document, "clarity", "script", "g2qjc2mj4e");
+      </script>
+
+      <style>
+          span.product__description__property.order-summary__small-text {
+            display: none;
+          }
+      </style>
+    </head>
+    <body>
+      {{ skip_to_content_link }}
+  
+      <header class="banner" data-header role="banner">
+        <div class="wrap">
+          {{ content_for_logo }}
+        </div>
+      </header>
+
+  
+      
+      {{ order_summary_toggle }}
+      <div class="content" data-content>
+        <div class="wrap">
+          <div class="main">
+            <header class="main__header" role="banner">
+              {{ content_for_logo }}
+              {{ breadcrumb }}
+              {{ alternative_payment_methods }}
+            </header>
+            <main class="main__content" role="main">
+              {{ content_for_layout }}
+            </main>
+            <footer class="main__footer" role="contentinfo">
+              {{ content_for_footer }}
+            </footer>
+          </div>
+          <aside class="sidebar" role="complementary">
+            <div class="sidebar__header">
+              {{ content_for_logo }}
+            </div>
+            <div class="sidebar__content">
+              {{ content_for_order_summary }}
+            </div>
+          </aside>
+        </div>
+      </div>
+  
+      {{ tracking_code }}
+      {% if fcfs %}
+        {% unless page_title contains "Thank you" %}
+          {% render "fcfs-checkout", token: line_item_property, show_countdown: true, redirection_url: line_item_url %} 
+        {% endunless %}
+      {% endif %}
+    </body>
+    {% elsif page_title contains "Payment" and line_item_property_payment_page == blank %}
+      {% render "fcfs-checkout", 
+          token: line_item_property, 
+          update_payment_page_token: true,
+          redirection_url: line_item_url 
+      %}
+    {% elsif page_title contains "Information" or page_title contains "Shipping" or page_title contains  "Payment" %}
+      {% render "fcfs-checkout", 
+        token: line_item_property, 
+        invalid_session: true,
+        redirection_url: line_item_url 
+      %}
+    {% endif %}
+</html>
+{% if page_title contains "Information" %}
+  {% render 'marmeto-mobile-validation' %}
+{% endif %}

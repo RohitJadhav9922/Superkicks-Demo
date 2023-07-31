@@ -1,0 +1,38 @@
+{% raw %}
+<div id="trending-autocomplete" class="st-trending-box" v-cloak>
+              <div class="st-container-trend" v-show="isTrendingVisible">
+                  <div id="st-before-search">
+                      <div class="st-trending-header">
+                          <svg viewBox="0 0 500 500" width="18" height="18" fill="#f94" data-v-26850a1a=""
+                               class="st-icon">
+                              <svg xmlns="http://www.w3.org/2000/svg" height="500" viewBox="0 0 48 48"
+                                   width="500" data-v-26850a1a="">
+                                  <path d="M32 12l4.59 4.59-9.76 9.75-8-8-14.83 14.83 2.83 2.83 12-12 8 8 12.58-12.59 4.59 4.59v-12z"
+                                        data-v-26850a1a=""></path>
+                                  <path d="M0 0h48v48h-48z" fill="none" data-v-26850a1a=""></path>
+                              </svg>
+                          </svg>
+                          <span class="st-heading-text"><span
+                                  class="recent-icon st-hidden-desktop"></span>Trending Searches</span>
+                      </div>
+                      <ul class="st-trending-list">
+                          <li class="st-trending-label" v-for="result in trending_results" v-bind:key="result.id">
+                              <a v-bind:href="result.redirectUrl" style="text-decoration: none !important; color: inherit;">
+                                  <svg viewBox="0 0 500 500" width="18" height="18" fill="#000"
+                                       data-v-26850a1a="" class="st-icon">
+                                      <svg xmlns="http://www.w3.org/2000/svg" height="500" viewBox="0 0 48 48"
+                                           width="500" data-v-26850a1a="">
+                                          <path d="M32 12l4.59 4.59-9.76 9.75-8-8-14.83 14.83 2.83 2.83 12-12 8 8 12.58-12.59 4.59 4.59v-12z"
+                                                data-v-26850a1a=""></path>
+                                          <path d="M0 0h48v48h-48z" fill="none" data-v-26850a1a=""></path>
+                                      </svg>
+                                  </svg>
+                                  {{ result.displayLabel }}
+                              </a>
+                          </li>
+                      </ul>
+                      <div class="st-autocomplete-footer"></div>
+                  </div>
+              </div>
+          </div>
+    {% endraw %}

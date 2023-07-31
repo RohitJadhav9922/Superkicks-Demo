@@ -1,0 +1,240 @@
+<style>
+  .Timer{
+    font-size: 24px;
+    line-height: 24px;
+    margin-bottom: 10px;
+    text-align: center;
+    background: #000;
+    color: hsl(0,100%,50%,1);
+    padding: 10px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 2;
+  }
+  
+  .banner{
+    padding: 3.5em 0;
+  }
+  
+  .time-out {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: #fff;
+    display: none;
+    z-index: 10;
+    font-size: 30px;
+    text-align: center;
+    padding: 50% 0;
+    font-weight: 500;
+    color: #000;
+  }
+  
+  .product__description__property { 
+    display: none; 
+  }
+  
+  .time-out p {
+    display: block;
+    font-size: 30px;
+    font-weight: 500;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transform: translateY(50%);
+    color: #000;
+    text-align: center;
+  }
+
+  h3.match-not-fount__msg {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #555555;
+    text-align: center;
+    padding: 10px;
+    display: none;
+  }
+</style>
+
+<div class="time-out"> 
+  <p>You ran out of time. Time to checkout is over.</p>
+</div>
+
+{% if invalid_session or update_payment_page_token %}
+  <h3 class="match-not-fount__msg">
+    Invalid session. Redirecting back to the product page..
+  </h3>
+{% endif %}
+  
+<script>    
+  async function handleCheckout () {
+    let breadcrumbs = document.querySelector("[aria-label='Breadcrumb']");
+    let container =document.querySelector("body");
+    var timerTag = document.createElement("p");
+    timerTag.classList.add("Timer");
+    container.before(timerTag);
+    
+    var timer = window.setInterval(function(){
+      var now = new Date().getTime(); 
+      var time = parseInt(localStorage.getItem("EndTimeCheckout"))- now;
+      var days = Math.floor(time / (1000 * 60 * 60 * 24));
+      var hours = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var minutes = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      var seconds = Math.floor((time % (1000 * 60)) / 1000);
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+      timerTag.textContent ="Your Time left: "+ minutes+ ":" +seconds+ " Mins";
+      
+      if (!time || time < 0) {
+        // document.querySelector(".time-out").style.display ="block";
+        clearInterval(timer);
+        timerTag.textContent = "Time Over";
+        sessionStorage.setItem("Added",false);
+        var message = document.querySelector(".time-out");
+        message.textContent = "Session timeout. Please try again.. :(";
+        message.style.display = "block";
+
+        removeFCFSProduct()
+      }
+    },1000);
+  }
+
+  // Function to update the payment token
+  async function paymentTokenUpdate() {
+    const apiUrl = "https://fcfs-stage.marmeto.com/api/pay-now";
+    const requestBody = {
+      "token": "{{ token }}",
+      "checkout_id": "{{ checkout.id }}"
+    };
+  
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+  
+      const data = await response.json();
+  
+      // If the response code is 200, add the new data token and reload the page
+      if (data.code === 200) {
+        const cart = await (await fetch('/cart.json')).json();
+        const item = cart.items.find(item => item.properties['fcfs-added']);
+        const params = {
+          id: item.key,
+          quantity: item.quantity,
+          properties: { ...item.properties, dataToken2: data.token }
+        };
+  
+        // Send a POST request to update the cart with the new token
+        await changeCart(params)
+  
+        // Reload the page
+        location.reload();
+      } else {
+        // Handle payment errors
+        handlePaymentError(data.code, data.message);
+      }
+    } catch (error) {
+      handlePaymentError("Error during payment:", error);
+    }
+  }
+  
+  // Function to handle payment errors
+  function handlePaymentError(code, message) {
+    let errorMessage = "";
+    if (code === 422) {
+      errorMessage = "validation_error";
+    } else if (code === 404) {
+      errorMessage = "Payment Time Expired";
+    } else {
+      errorMessage = "Session expired, Please Try again!";
+    }
+
+    document.querySelector(".match-not-fount__msg").style.display = 'block';
+    console.error(errorMessage, message);
+  
+    removeFCFSProduct();
+  }
+  
+  // Function to clear the cart and redirect
+  async function removeFCFSProduct() {
+    try {
+      const cart = await (await fetch('/cart.json')).json();
+      const item = cart.items.find(item => item.properties['fcfs-added']);
+      const params = {
+        id: item.key,
+        quantity: 0
+      };
+      
+      await changeCart(params)
+  
+      // Delete the FCFS product session
+      // await deleteFCFSProductSession("{{ token }}");
+  
+      // Clear the session storage
+      localStorage.removeItem('EndTimeCheckout')
+  
+      // Redirect the user to the homepage
+      location.reload();
+      // window.location.href = "{{ redirection_url }}";
+    } catch (error) {
+      console.error("Error clearing the cart:", error);
+    }
+  }
+
+  async function changeCart(params) {
+    try {
+      const response = await fetch('/cart/change.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params)
+      });
+    } catch (error) {
+      throw error; 
+    }
+  }
+  
+  async function deleteFCFSProductSession(fcfsToken) {
+    if (!fcfsToken) return;
+  
+    const deleteSessionURL = 'https://fcfs-stage.marmeto.com/api/delete/session';
+    const data = { token: fcfsToken };
+  
+    try {
+      await fetch(deleteSessionURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  {% if update_payment_page_token %}
+    paymentTokenUpdate();
+  {% endif %}
+  
+  {% if invalid_session %}
+    document.querySelector(".match-not-fount__msg").style.display = 'block';
+    removeFCFSProduct()
+  {% endif %}
+
+  {% if show_countdown %}
+    $(document).on('page:load page:change',handleCheckout)
+  {% endif %}
+</script>
+
+      
+    
+
+
+   
+
+
+

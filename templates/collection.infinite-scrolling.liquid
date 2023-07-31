@@ -1,0 +1,10 @@
+{% comment %} {% layout none %}
+{% paginate collection.products by 16 %}
+  {% for product in collection.products %}
+        <li class="grid__item">
+          {% render 'card-product',
+            card_product: product
+          %}
+        </li>
+  {% endfor %}
+{%  endpaginate %} {% endcomment %}

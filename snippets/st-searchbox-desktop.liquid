@@ -1,0 +1,131 @@
+<style>
+  [v-cloak] {
+    display: none!important;
+}
+  .st-scroll-top {
+    display: none !important;
+  }
+  .st-hidden-sm {
+    display: inline-block;
+}
+
+.st-hidden-desktop {
+    display: none ;
+}
+  .st-search-bar.st-hidden-sm {
+    margin: 0 15px 0 0;
+        position: relative;
+}
+  .st-search-bar svg.st-cross {
+    position: absolute;
+    right: 10px;
+    width: 20px;
+    fill: #777;
+    top: 8px;
+    cursor: pointer;
+}
+.st-search-bar input {
+    font-family: inherit;
+    border: 1px solid #282828;
+    padding-left: 35px!important;
+    width: 100%;
+    height: 35px!important;
+    font-size: 13px!important;
+    border-radius: 20px;
+    min-width: 180px;
+    font-weight: 300;
+    background-color: transparent;
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNTA4LjkgNDc4LjdMMzYwLjEgMzMwYzI4LjItMzQuOCA0NS4yLTc5LjEgNDUuMi0xMjcuM0M0MDUuMyA5MC45IDMxNC40IDAgMjAyLjcgMFMwIDkwLjkgMCAyMDIuN3M5MC45IDIwMi43IDIwMi43IDIwMi43YzQ4LjIgMCA5Mi41LTE3IDEyNy4zLTQ1LjJsMTQ4LjcgMTQ4LjdjNC4yIDQuMiAxMC45IDQuMiAxNS4xIDBsMTUuMS0xNS4xYzQuMS00LjIgNC4xLTEwLjkgMC0xNS4xem0tMzA2LjItMTE2Yy04OC4yIDAtMTYwLTcxLjgtMTYwLTE2MHM3MS44LTE2MCAxNjAtMTYwIDE2MCA3MS44IDE2MCAxNjAtNzEuOCAxNjAtMTYwIDE2MHoiIGZpbGw9IiMzNDNmNDkiLz48L3N2Zz4=)!important;
+    background-size: 15px!important;
+    background-position-x: 12px!important;
+    background-position-y: center!important;
+    background-repeat: no-repeat!important;
+    color: #5e5c5c;
+    line-height: normal;
+    padding: 8px 30px 8px 14px;
+}
+.st-trending-box {
+    width: 100%;
+    position: absolute;
+    height: unset;
+    left: unset;
+    margin-top: 0;
+    margin-right: 5px;
+    background-color: #fff;
+    z-index: 9999;
+    border-radius: 0;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+    box-shadow: 0 5px 20px #8f959a99;
+}
+  .st-trending-box #st-before-search {
+    padding: 15px 15px 20px;
+    min-height: 50px;
+}
+  .st-trending-box .st-autocomplete-component-header, .st-trending-box .st-trending-header {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    margin-bottom: 10px;
+    text-transform: capitalize;
+    font-weight: 600;
+    letter-spacing: .5px;
+}
+  .st-trending-box .st-trending-header svg {
+    width: 20px;
+    height: 20px;
+    stroke: none;
+    fill: #000!important;
+}
+  .st-trending-box .st-trending-list {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    margin: 0 0 0 5px;
+    padding: 0;
+    list-style-type: none;
+}
+  .st-trending-box .st-trending-list .st-trending-label {
+    border-radius: 40px;
+    margin: 4px 2px!important;
+}
+  .st-trending-box span.st-heading-text {
+    margin-left: 5px;
+    color: #222;
+    font-family: inherit;
+    text-align: left;
+}
+  .st-trending-label svg.st-icon {
+    fill: #5e5c5c;
+    opacity: .5;
+    height: 14px;
+    width: 14px;
+    margin-right: 5px;
+}
+  .st-trending-box .st-autocomplete-component-label, .st-trending-box .st-trending-list .st-trending-label {
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 5px;
+    text-align: left;
+    font-weight: 400;
+    color: #222;
+    font-family: inherit;
+}
+   @media only screen and (min-width: 834px){
+     .st-hidden-desktop {
+    display: none !important;
+}
+   }
+</style>
+<div class="st-search-bar st-hidden-sm">
+                        <input type="text" name="q" placeholder="Search..." value="" autocapitalize="off" autocomplete="off" autocorrect="off">
+                        <svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"
+                             viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="st-cross"
+                             style="display: none;">
+                            <path d="m12 10.93 5.719-5.72c.146-.146.339-.219.531-.219.404 0 .75.324.75.749 0 .193-.073.385-.219.532l-5.72 5.719 5.719 5.719c.147.147.22.339.22.531 0 .427-.349.75-.75.75-.192 0-.385-.073-.531-.219l-5.719-5.719-5.719 5.719c-.146.146-.339.219-.531.219-.401 0-.75-.323-.75-.75 0-.192.073-.384.22-.531l5.719-5.719-5.72-5.719c-.146-.147-.219-.339-.219-.532 0-.425.346-.749.75-.749.192 0 .385.073.531.219z"></path>
+                        </svg>
+                   {%- render 'st-trending-searches' -%}     
+                    </div>
